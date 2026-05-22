@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-a5f9463f7f-5b37_b71121d571",
+  "featureId": "feat_library_a5f9463f7f",
+  "title": "Logout endpoint accepts CSRFable GET requests",
+  "category": "security",
+  "severity": "medium",
+  "confidence": "high",
+  "triage": "confirmed-bug",
+  "evidence": [
+    {
+      "path": "Users/urls.py",
+      "startLine": 7,
+      "endLine": 8,
+      "symbol": "urlpatterns",
+      "quote": null
+    },
+    {
+      "path": "Users/views.py",
+      "startLine": 60,
+      "endLine": 63,
+      "symbol": "LogoutView.get",
+      "quote": null
+    }
+  ],
+  "reasoning": "The logout route is exposed as a normal URL and LogoutView performs logout in response to GET. Because GET requests do not require a CSRF token and can be triggered cross-site by links, images, or redirects, another site can force an authenticated user to be logged out. This is a state-changing action and should require POST with CSRF protection.",
+  "reproduction": "While logged in, visit or embed a request to the logout URL from any page; the server will execute LogoutView.get and clear the session.",
+  "recommendation": "Require POST for logout, use Django's CSRF protection, and update templates to submit a POST form or use Django's built-in LogoutView with POST-only behavior.",
+  "whyTestsDoNotAlreadyCoverThis": "Users/tests.py contains no tests, so there is no assertion that logout rejects GET or requires CSRF-protected POST.",
+  "suggestedRegressionTest": "Add a test that GET /logout/ does not log out the user and that POST /logout/ logs out only through the intended route.",
+  "minimumFixScope": "Change Users.views.LogoutView to handle logout via POST only and update Users.urls/templates or callers accordingly.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-a5f9463f7f_5b37dbedb0",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260522T171158-27b7c9",
+  "createdAt": "2026-05-22T17:12:25.592Z",
+  "updatedAt": "2026-05-22T17:12:25.592Z"
+}

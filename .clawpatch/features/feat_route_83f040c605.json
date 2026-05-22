@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "featureId": "feat_route_83f040c605",
+  "title": "Django route /financescalendar/",
+  "summary": "Django route /financescalendar/ handled by CalenderView.as_view in Finances/urls.py.",
+  "kind": "route",
+  "source": "python-django-route",
+  "confidence": "high",
+  "entrypoints": [
+    {
+      "path": "Finances/urls.py",
+      "symbol": "CalenderView.as_view",
+      "route": "/financescalendar/",
+      "command": null
+    }
+  ],
+  "ownedFiles": [
+    {
+      "path": "Finances/urls.py",
+      "reason": "Django URL route declaration"
+    }
+  ],
+  "contextFiles": [],
+  "tests": [],
+  "tags": [
+    "python",
+    "django",
+    "route"
+  ],
+  "trustBoundaries": [
+    "network",
+    "user-input",
+    "serialization"
+  ],
+  "status": "pending",
+  "lock": null,
+  "findingIds": [],
+  "patchAttemptIds": [],
+  "analysisHistory": [],
+  "createdAt": "2026-05-22T16:02:10.019Z",
+  "updatedAt": "2026-05-22T16:02:10.019Z"
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "featureId": "feat_route_d33ca04fd3",
+  "title": "Django route /financesreport/",
+  "summary": "Django route /financesreport/ handled by ReportView.as_view in Finances/urls.py.",
+  "kind": "route",
+  "source": "python-django-route",
+  "confidence": "high",
+  "entrypoints": [
+    {
+      "path": "Finances/urls.py",
+      "symbol": "ReportView.as_view",
+      "route": "/financesreport/",
+      "command": null
+    }
+  ],
+  "ownedFiles": [
+    {
+      "path": "Finances/urls.py",
+      "reason": "Django URL route declaration"
+    }
+  ],
+  "contextFiles": [],
+  "tests": [],
+  "tags": [
+    "python",
+    "django",
+    "route"
+  ],
+  "trustBoundaries": [
+    "network",
+    "user-input",
+    "serialization"
+  ],
+  "status": "pending",
+  "lock": null,
+  "findingIds": [],
+  "patchAttemptIds": [],
+  "analysisHistory": [],
+  "createdAt": "2026-05-22T16:02:10.019Z",
+  "updatedAt": "2026-05-22T16:02:10.019Z"
+}

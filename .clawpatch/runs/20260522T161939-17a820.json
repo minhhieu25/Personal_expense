@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260522T161939-17a820",
+  "command": "review",
+  "args": [
+    "review",
+    "--limit",
+    "3",
+    "--skip-git-repo-check"
+  ],
+  "rootPath": "E:\\PROJECT_DJANGO\\PROJECT\\Chi_Tieu_Ca_Nhan",
+  "headSha": null,
+  "startedAt": "2026-05-22T16:19:39.541Z",
+  "finishedAt": "2026-05-22T16:20:30.950Z",
+  "status": "completed",
+  "claimedFeatureIds": [
+    "feat_library_25faef2bc4",
+    "feat_library_592143abcc",
+    "feat_library_83c12046de"
+  ],
+  "findingIds": [
+    "fnd_sig-feat-library-592143abcc-9b15_fa013cfc9f",
+    "fnd_sig-feat-library-592143abcc-c39d_26bfed42f9",
+    "fnd_sig-feat-library-592143abcc-9168_73a48d57c2",
+    "fnd_sig-feat-library-592143abcc-b475_0fbb2e6f9a"
+  ],
+  "patchAttemptIds": [],
+  "errors": []
+}

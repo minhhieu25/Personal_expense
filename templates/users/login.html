@@ -1,0 +1,18 @@
+{% extends "users/base_auth.html" %}
+{% load static %}
+
+{% block title %} Login - CryptoVault {% endblock %}
+
+{% block cssblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-style.css' %}">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-login.css' %}">
+{% endblock %}
+
+
+{% block jsblock %}
+    <script src="{% static 'homepage/js/templatemo-crypto-script.js' %}"></script>
+{% endblock %}
+

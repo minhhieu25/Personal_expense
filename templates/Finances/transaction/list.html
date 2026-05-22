@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} Giao dịch {% endblock %}
+
+{% block cssblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-style.css' %}">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-pages.css' %}">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-login.css' %}">
+
+{% endblock %}
+
+{% block content %}
+        <div class="page-header">
+            <h1>Giao dịch</h1>
+            <p>Hãy ghi lại những giao dịch hôm nay</p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="market-stats">
+                <div class="market-stat">
+                    <h5>Chọn ví</h5>
+                    <div class="market-stat-label">{{ form.wallet }}</div>
+                </div>
+                <div class="market-stat">
+                    <h5>Chọn ngày</h5>
+                    <div class="market-stat-label">{{ form.date }}</div>
+                </div>
+                <div class="market-stat">
+                    <h5>Nhập số tiền</h5>
+                    <div class="market-stat-label">{{ form.amount }}</div>
+                </div>
+                <div class="market-stat">
+                    <h5>Loại</h5>
+                    <div class="market-stat-label">{{ form.transaction_type }}</div>
+                </div>
+                <div class="market-stat">
+                    <h5>Ghi chú</h5>
+                    <div class="market-stat-label">{{ form.note }}</div>
+                </div>
+                <div class="market-stat">
+                    <h5>Chọn nhóm</h5>
+                    <div class="market-stat-label">{{ form.category }}</div>
+                </div>
+                <div class="market-stat">
+                    <h5>Thêm hình ảnh</h5>
+                    <div class="market-stat-label">{{ form.receipt }}</div>
+                </div>
+                <button type="submit">Tạo</button>
+            </div>
+        </form>
+
+        <!-- Search and Filters -->
+        <div class="search-filters">
+            <div class="search-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" placeholder="Search coins..." id="searchInput">
+            </div>
+            <div class="filter-tabs">
+                <button class="filter-tab active">All</button>
+                <button class="filter-tab">Favorites</button>
+                <button class="filter-tab">DeFi</button>
+                <button class="filter-tab">NFT</button>
+                <button class="filter-tab">Layer 1</button>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Market Table -->
+            <div class="card">
+                <table class="market-table">
+                    <thead>
+                        <tr>
+                            <th>Giao dịch</th>
+                            <th>Số tiền</th>
+                            <th class="text-right">Loại</th>
+                            <th class="text-right">Ghi chú</th>
+                            <th class="text-right">Hình ảnh</th>
+                            <th class="text-right">Ví</th>
+                        </tr>
+                    </thead>
+                    {% for i in transaction %}
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="coin-cell">
+                                    <div class="coin-icon btc">{{ i.category.icon }}</div>
+                                    <div>
+                                        <div class="coin-name">{{ i.category.name }}</div>
+                                        <div class="coin-symbol">{{ i.date }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="price-cell">
+                                {% if i.transaction_type == "Chi tiêu" %}
+                                    -{{ i.amount|floatformat:0 }} VNĐ
+                                {% else %}
+                                    +{{ i.amount|floatformat:0 }} VNĐ
+                                {% endif %}
+                            </td>
+                            <td class="change-cell positive">{{ i.transaction_type }}</td>
+                            <td class="volume-cell">
+                                {% if i.note %}
+                                    {{ i.note }}
+                                {% else %}
+                                    <span>Không có ghi chú</span>
+                                {% endif %}
+                            </td>
+                            <td class="mcap-cell">
+                                {% if i.receipt %}
+                                    <img src="{{ i.receipt.url }}" style="width:70px; height:70px">
+                                {% else %}
+                                    <span>Không có hình ảnh</span>
+                                {% endif %}
+                            </td>
+                            <td class="mcap-cell">
+                                {{ i.wallet }}
+                            </td>
+                            <td>
+                                <!--nut chinh sua-->
+                                <a href="{% url 'finances:transaction_edit' i.id %}">
+                                    <button class="edit-btn" style="background: #3b82f6; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                        Sửa
+                                    </button>
+                                </a>
+                            </td>
+                            <td>
+                                <!--Nut xoa-->
+                                <form method="post" action="{% url 'finances:transaction_delete' i.id %}">
+                                    {% csrf_token %}
+                                    <button class="delete-btn" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                        </svg>
+                                        Xóa
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td>
+                                <div>Chưa có giao dịch nào!</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    {% endfor %}
+                </table>
+            </div>
+
+<!--Xử lý hình ảnh-->
+    <div id="imageModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImg">
+    </div>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 800px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #f1f1f1;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #bbb;
+        }
+    </style>
+
+    <script>
+        var modal = document.getElementById("imageModal");
+        var modalImg = document.getElementById("modalImg");
+
+        // Thêm click event cho tất cả ảnh trong bảng
+        document.querySelectorAll('.mcap-cell img').forEach(img => {
+            img.style.cursor = 'pointer';
+            img.onclick = function() {
+                modal.style.display = "block";
+                modalImg.src = this.src;
+            }
+        });
+
+        // Đóng modal khi click X
+        document.querySelector('.close').onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // Đóng modal khi click outside
+        modal.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>  
+<!--Kết thúc Xử lý hình ảnh-->   
+
+            <!-- Right Column -->
+            <div>
+                <!-- Trending -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">🔥 Trending</h3>
+                    </div>
+                    <div class="trending-list">
+                        <div class="trending-item">
+                            <div class="trending-rank">1</div>
+                            <div class="trending-coin">
+                                <div class="trending-icon" style="background: linear-gradient(135deg, #c3a634, #ba9f33);">Ð</div>
+                                <div>
+                                    <div class="trending-name">Dogecoin</div>
+                                    <div class="trending-symbol">DOGE</div>
+                                </div>
+                            </div>
+                            <div class="trending-change positive">+8.45%</div>
+                        </div>
+                        <div class="trending-item">
+                            <div class="trending-rank">2</div>
+                            <div class="trending-coin">
+                                <div class="trending-icon" style="background: linear-gradient(135deg, #9945ff, #14f195);">◎</div>
+                                <div>
+                                    <div class="trending-name">Solana</div>
+                                    <div class="trending-symbol">SOL</div>
+                                </div>
+                            </div>
+                            <div class="trending-change positive">+5.67%</div>
+                        </div>
+                        <div class="trending-item">
+                            <div class="trending-rank">3</div>
+                            <div class="trending-coin">
+                                <div class="trending-icon" style="background: linear-gradient(135deg, #e6007a, #c40068);">●</div>
+                                <div>
+                                    <div class="trending-name">Polkadot</div>
+                                    <div class="trending-symbol">DOT</div>
+                                </div>
+                            </div>
+                            <div class="trending-change positive">+4.21%</div>
+                        </div>
+                        <div class="trending-item">
+                            <div class="trending-rank">4</div>
+                            <div class="trending-coin">
+                                <div class="trending-icon" style="background: linear-gradient(135deg, #0033ad, #002276);">₳</div>
+                                <div>
+                                    <div class="trending-name">Cardano</div>
+                                    <div class="trending-symbol">ADA</div>
+                                </div>
+                            </div>
+                            <div class="trending-change positive">+3.12%</div>
+                        </div>
+                        <div class="trending-item">
+                            <div class="trending-rank">5</div>
+                            <div class="trending-coin">
+                                <div class="trending-icon" style="background: linear-gradient(135deg, #f7931a, #c77b15);">₿</div>
+                                <div>
+                                    <div class="trending-name">Bitcoin</div>
+                                    <div class="trending-symbol">BTC</div>
+                                </div>
+                            </div>
+                            <div class="trending-change positive">+2.34%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fear & Greed Index -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Fear & Greed Index</h3>
+                    </div>
+                    <div class="fear-greed">
+                        <div class="fear-greed-meter">
+                            <div class="fear-greed-indicator" style="left: 68%;"></div>
+                        </div>
+                        <div class="fear-greed-labels">
+                            <span>Extreme Fear</span>
+                            <span>Neutral</span>
+                            <span>Extreme Greed</span>
+                        </div>
+                        <div class="fear-greed-value">
+                            <div class="fear-greed-number">68</div>
+                            <div class="fear-greed-label">Greed</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %} 
+
+{% block jsblock %}
+    <script src="{% static 'homepage/js/templatemo-crypto-script.js' %}"></script>
+{% endblock %}
+

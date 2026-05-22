@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+{% load static %}
+{% load finances_filters %}
+
+{% block title %} Lịch {% endblock %}
+
+{% block cssblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-style.css' %}">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-pages.css' %}">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-login.css' %}">
+
+    <style>
+        /* Summary Grid */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .summary-card.total-income {
+            border-left-color: #43e97b;
+        }
+
+        .summary-card.total-expense {
+            border-left-color: #f5576c;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Calendar Styles */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header h2 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: none;
+            background-color: #2196F3;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        /* Calendar Table */
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .calendar-table th {
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+            background-color: #f9f9f9;
+            font-size: 13px;
+        }
+
+        .calendar-table td {
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            min-height: 80px;
+            vertical-align: top;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-table td:hover {
+            background-color: #f5f5f5;
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .day-number.active {
+            display: inline-block;
+            background: #2196F3;
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .day-summary {
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .day-income {
+            color: #43e97b;
+            font-weight: 500;
+        }
+
+        .day-expense {
+            color: #f5576c;
+            font-weight: 500;
+        }
+
+        /* Transaction Table */
+        .market-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .market-table thead th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .market-table tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .market-table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .coin-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .coin-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .coin-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .wallet-address {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .amount-income {
+            color: #43e97b;
+            font-weight: 600;
+        }
+
+        .amount-expense {
+            color: #f5576c;
+            font-weight: 600;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 800px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 8px;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #f1f1f1;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .close:hover {
+            color: #bbb;
+        }
+
+        @media (max-width: 768px) {
+            .summary-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .calendar-table td {
+                min-height: 60px;
+                padding: 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+        <div class="page-header">
+            <h1>Lịch giao dịch</h1>
+            <p>Theo dõi các giao dịch của bạn theo từng ngày</p>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-grid">
+            <!-- Tổng thu -->
+            <div class="summary-card total-income">
+                <div class="summary-label">📈 Tổng thu</div>
+                <div class="summary-value">+{{ total_income|floatformat:0 }} đ</div>
+            </div>
+
+            <!-- Tổng chi -->
+            <div class="summary-card total-expense">
+                <div class="summary-label">📉 Tổng chi</div>
+                <div class="summary-value">-{{ total_expense|floatformat:0 }} đ</div>
+            </div>
+
+            <!-- Net -->
+            {% if total_income >= total_expense %}
+            <div class="summary-card" style="border-left-color: #43e97b;">
+                <div class="summary-label">✨ Chênh lệch</div>
+                <div class="summary-value" style="color: #43e97b;">+{{ total_difference|floatformat:0 }} đ</div>
+            </div>
+            {% else %}
+            <div class="summary-card" style="border-left-color: #f5576c;">
+                <div class="summary-label">⚠️ Chênh lệch</div>
+                <div class="summary-value" style="color: #f5576c;">{{ total_difference|floatformat:0 }} đ</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Calendar Header -->
+        <div class="calendar-header">
+            <a href="?date={{ prev_month }}" class="action-btn">← Tháng trước</a>
+            <h2>{{ month_name }}</h2>
+            <a href="?date={{ next_month }}" class="action-btn">Tháng sau →</a>
+        </div>
+
+        <!-- Calendar Table -->
+        <div class="card">
+            <table class="calendar-table">
+                <thead>
+                    <tr>
+                        <th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th><th>CN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for week in cal %}
+                    <tr>
+                        {% for day in week %}
+                        <td>
+                            {% if day != 0 %}
+                                <a href="?date={{ selected_date|date:'Y-m' }}-{{ day|stringformat:'02d' }}&selected_day={{ day }}" style="text-decoration:none; color:inherit;">
+                                    <div class="day-number {% if day == selected_date.day %}active{% endif %}">
+                                        {{ day }}
+                                    </div>
+                                </a>
+                                {% with data=transaction_by_date|get_item:day %}
+                                    {% if data %}
+                                        <div class="day-summary">
+                                            {% if data.income %}
+                                                <div class="day-income">+{{ data.income|floatformat:0 }} đ</div>
+                                            {% endif %}
+                                            {% if data.expense %}
+                                                <div class="day-expense">-{{ data.expense|floatformat:0 }} đ</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Transactions List -->
+        {% if selected_day %}
+        <div class="card" style="margin-top: 20px;">
+            <div style="padding: 20px; border-bottom: 2px solid #e0e0e0;">
+                <h3 style="margin: 0; color: #333;">Giao dịch ngày {{ selected_day }}/{{ selected_date|date:'m/Y' }}</h3>
+            </div>
+            {% if day_transactions %}
+                <table class="market-table">
+                    <thead>
+                        <tr>
+                            <th>Danh mục</th>
+                            <th class="text-right">Ví</th>
+                            <th class="text-right">Số tiền</th>
+                            <th class="text-right">Ghi chú</th>
+                            <th class="text-right">Hình ảnh</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in day_transactions %}
+                        <tr>
+                            <td>
+                                <div class="coin-cell">
+                                    <div class="coin-icon">{{ t.category.icon }}</div>
+                                    <div>
+                                        <div class="coin-name">{{ t.category.name }}</div>
+                                        <div class="wallet-address">{{ t.date|date:'d/m/Y' }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-right">{{ t.wallet }}</td>
+                            <td class="text-right">
+                                {% if t.transaction_type == 'Thu nhập' %}
+                                    <span class="amount-income">+{{ t.amount|floatformat:0 }} đ</span>
+                                {% else %}
+                                    <span class="amount-expense">-{{ t.amount|floatformat:0 }} đ</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-right" style="font-size: 13px;">{{ t.note|default:"Không có ghi chú" }}</td>
+                            <td class="text-right">
+                                {% if t.receipt %}
+                                    <img src="{{ t.receipt.url }}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; cursor:pointer;" onclick="openImage(this.src)">
+                                {% else %}
+                                    <span style="font-size: 12px; color: #999;">Không có</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div style="padding: 40px; text-align: center;">
+                    <p style="color: #999; font-size: 14px;">Không có giao dịch nào trong ngày này</p>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Image Modal -->
+        <div id="imageModal" class="modal">
+            <span class="close">&times;</span>
+            <img class="modal-content" id="modalImg">
+        </div>
+
+        <script>
+            var modal = document.getElementById("imageModal");
+            var modalImg = document.getElementById("modalImg");
+
+            function openImage(src) {
+                modal.style.display = "block";
+                modalImg.src = src;
+            }
+
+            document.querySelector('.close').onclick = function() {
+                modal.style.display = "none";
+            }
+
+            modal.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        </script>
+
+{% endblock %} 
+
+{% block jsblock %}
+    <script src="{% static 'homepage/js/templatemo-crypto-script.js' %}"></script>
+{% endblock %}

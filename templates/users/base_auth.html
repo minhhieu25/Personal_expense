@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %} TemplateMo - Free CSS Website Templates {% endblock %}</title>
+
+    <script>
+        // Load theme immediately to prevent flash
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+
+    {% block cssblock %}
+    {% endblock %}
+
+</head>
+<body class="auth-page">
+    {% include "users/auth_branding.html" %}
+
+    {% include "users/auth_form.html" %}
+
+
+    {% block jsblock %}
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260522T161124-fd4edc",
+  "command": "review",
+  "args": [
+    "review",
+    "--limit",
+    "5"
+  ],
+  "rootPath": "E:\\PROJECT_DJANGO\\PROJECT\\Chi_Tieu_Ca_Nhan",
+  "headSha": null,
+  "startedAt": "2026-05-22T16:11:24.450Z",
+  "finishedAt": "2026-05-22T16:11:24.893Z",
+  "status": "failed",
+  "claimedFeatureIds": [
+    "feat_library_25faef2bc4",
+    "feat_library_592143abcc",
+    "feat_library_83c12046de",
+    "feat_library_a2177dddd3",
+    "feat_library_a5f9463f7f"
+  ],
+  "findingIds": [],
+  "patchAttemptIds": [],
+  "errors": [
+    {
+      "message": "codex provider failed: Not inside a trusted directory and --skip-git-repo-check was not specified.\n",
+      "code": "provider-failure"
+    },
+    {
+      "message": "codex provider failed: Not inside a trusted directory and --skip-git-repo-check was not specified.\n",
+      "code": "provider-failure"
+    },
+    {
+      "message": "codex provider failed: Not inside a trusted directory and --skip-git-repo-check was not specified.\n",
+      "code": "provider-failure"
+    },
+    {
+      "message": "codex provider failed: Not inside a trusted directory and --skip-git-repo-check was not specified.\n",
+      "code": "provider-failure"
+    },
+    {
+      "message": "codex provider failed: Not inside a trusted directory and --skip-git-repo-check was not specified.\n",
+      "code": "provider-failure"
+    }
+  ]
+}

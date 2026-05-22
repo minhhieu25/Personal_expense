@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "featureId": "feat_route_bb071006a4",
+  "title": "Django route /financescategories/:pk/edit/",
+  "summary": "Django route /financescategories/:pk/edit/ handled by CategoryEditView.as_view in Finances/urls.py.",
+  "kind": "route",
+  "source": "python-django-route",
+  "confidence": "high",
+  "entrypoints": [
+    {
+      "path": "Finances/urls.py",
+      "symbol": "CategoryEditView.as_view",
+      "route": "/financescategories/:pk/edit/",
+      "command": null
+    }
+  ],
+  "ownedFiles": [
+    {
+      "path": "Finances/urls.py",
+      "reason": "Django URL route declaration"
+    }
+  ],
+  "contextFiles": [],
+  "tests": [],
+  "tags": [
+    "python",
+    "django",
+    "route"
+  ],
+  "trustBoundaries": [
+    "network",
+    "user-input",
+    "serialization"
+  ],
+  "status": "pending",
+  "lock": null,
+  "findingIds": [],
+  "patchAttemptIds": [],
+  "analysisHistory": [],
+  "createdAt": "2026-05-22T16:02:10.019Z",
+  "updatedAt": "2026-05-22T16:02:10.019Z"
+}

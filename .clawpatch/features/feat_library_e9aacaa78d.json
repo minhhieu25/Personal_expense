@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "featureId": "feat_library_e9aacaa78d",
+  "title": "Python source Finances/templatetags",
+  "summary": "Python source group Finances/templatetags with 2 files.",
+  "kind": "library",
+  "source": "python-source-group",
+  "confidence": "medium",
+  "entrypoints": [
+    {
+      "path": "Finances/templatetags",
+      "symbol": "Finances/templatetags",
+      "route": null,
+      "command": null
+    }
+  ],
+  "ownedFiles": [
+    {
+      "path": "Finances/templatetags/__init__.py",
+      "reason": "source group Finances/templatetags"
+    },
+    {
+      "path": "Finances/templatetags/finances_filters.py",
+      "reason": "source group Finances/templatetags"
+    }
+  ],
+  "contextFiles": [],
+  "tests": [],
+  "tags": [
+    "python",
+    "source-group"
+  ],
+  "trustBoundaries": [],
+  "status": "pending",
+  "lock": null,
+  "findingIds": [],
+  "patchAttemptIds": [],
+  "analysisHistory": [],
+  "createdAt": "2026-05-22T16:02:10.019Z",
+  "updatedAt": "2026-05-22T16:02:10.019Z"
+}

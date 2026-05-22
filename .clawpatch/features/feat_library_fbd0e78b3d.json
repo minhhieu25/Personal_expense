@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "featureId": "feat_library_fbd0e78b3d",
+  "title": "Python source Finances/migrations",
+  "summary": "Python source group Finances/migrations with 4 files.",
+  "kind": "library",
+  "source": "python-source-group",
+  "confidence": "medium",
+  "entrypoints": [
+    {
+      "path": "Finances/migrations",
+      "symbol": "Finances/migrations",
+      "route": null,
+      "command": null
+    }
+  ],
+  "ownedFiles": [
+    {
+      "path": "Finances/migrations/0001_initial.py",
+      "reason": "source group Finances/migrations"
+    },
+    {
+      "path": "Finances/migrations/0002_initial.py",
+      "reason": "source group Finances/migrations"
+    },
+    {
+      "path": "Finances/migrations/0003_rename_date_budget_start_date_and_more.py",
+      "reason": "source group Finances/migrations"
+    },
+    {
+      "path": "Finances/migrations/__init__.py",
+      "reason": "source group Finances/migrations"
+    }
+  ],
+  "contextFiles": [],
+  "tests": [],
+  "tags": [
+    "python",
+    "source-group"
+  ],
+  "trustBoundaries": [],
+  "status": "pending",
+  "lock": null,
+  "findingIds": [],
+  "patchAttemptIds": [],
+  "analysisHistory": [],
+  "createdAt": "2026-05-22T16:02:10.019Z",
+  "updatedAt": "2026-05-22T16:02:10.019Z"
+}

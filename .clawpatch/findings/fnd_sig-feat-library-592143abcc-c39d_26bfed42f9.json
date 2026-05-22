@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-592143abcc-c39d_26bfed42f9",
+  "featureId": "feat_library_592143abcc",
+  "title": "Unauthenticated users can hit finance views that assume an authenticated user",
+  "category": "security",
+  "severity": "medium",
+  "confidence": "high",
+  "triage": "confirmed-bug",
+  "evidence": [
+    {
+      "path": "Finances/views.py",
+      "startLine": 39,
+      "endLine": 60,
+      "symbol": "CategoryEditView, CategoryDeleteView",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 98,
+      "endLine": 119,
+      "symbol": "WalletEditView, WalletDeleteView",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 146,
+      "endLine": 171,
+      "symbol": "TransactionEditView, TransactionDeleteView",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 210,
+      "endLine": 235,
+      "symbol": "BudgetEditView, BudgetDeleteView",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 238,
+      "endLine": 327,
+      "symbol": "CalenderView, SettingView, ReportView",
+      "quote": null
+    }
+  ],
+  "reasoning": "Several finance views omit LoginRequiredMixin while reading request.user or exposing finance-related pages. Unlike the list/add views, unauthenticated requests are not redirected to login; views that query user-owned models may error with AnonymousUser, and settings/report/calendar pages are reachable without the same authentication gate as the rest of the finance feature.",
+  "reproduction": "As an anonymous user, request routes such as /calendar/ or /transaction/1/edit/. These classes do not enforce login before executing their handlers.",
+  "recommendation": "Add LoginRequiredMixin to every finance view that displays or mutates user finance data, including edit/delete, calendar, settings, and report views.",
+  "whyTestsDoNotAlreadyCoverThis": "There are no access-control tests in Finances/tests.py.",
+  "suggestedRegressionTest": "Add tests asserting anonymous GET/POST requests to every finance URL redirect to login, and authenticated users can only access objects they own.",
+  "minimumFixScope": "Add LoginRequiredMixin consistently across the affected class-based views.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-592143abcc_c39d116611",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260522T161939-17a820",
+  "createdAt": "2026-05-22T16:20:30.941Z",
+  "updatedAt": "2026-05-22T16:20:30.941Z"
+}

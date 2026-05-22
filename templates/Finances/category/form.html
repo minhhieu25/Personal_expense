@@ -1,0 +1,200 @@
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" style="display:none;">
+    <div class="modal-box" style="background: var(--card-bg); padding: 30px; border-radius: 12px; width: 450px; max-height: 90vh; overflow-y: auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2>Thêm danh mục mới</h2>
+            <button onclick="closeModal()" style="background:none; border:none; cursor:pointer; font-size:20px;">✕</button>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div style="margin-bottom:15px;">
+                <label>Tên danh mục</label>
+                {{ form.name }}
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <label>Loại</label>
+                {{ form.type }}
+            </div>
+
+            <!-- Icon Picker -->
+            <div style="margin-bottom:15px;">
+                <label>Icon</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div id="iconPreview" style="font-size: 32px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border-color); border-radius: 8px;">📋</div>
+                    <button type="button" onclick="openIconPicker()" style="flex: 1; padding: 10px; background: var(--button-bg, #3b82f6); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Chọn Icon</button>
+                </div>
+                {{ form.icon }}
+            </div>
+
+            {% if form.errors %}
+                <div style="background: #fee; border: 1px solid #f88; padding: 10px; border-radius: 4px; margin-bottom:15px;">
+                    <p style="color:#d00; margin:0; font-weight: bold;">Lỗi:</p>
+                    {{ form.errors }}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="action-btn primary" style="width:100%;">Thêm</button>
+        </form>
+    </div>
+</div>
+
+<!-- Icon Picker Modal -->
+<div class="icon-picker-overlay" id="iconPickerOverlay" style="display:none;">
+    <div class="icon-picker-box" style="background: var(--card-bg); padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3>Chọn Icon</h3>
+            <button onclick="closeIconPicker()" style="background:none; border:none; cursor:pointer; font-size:20px;">✕</button>
+        </div>
+
+        <input type="text" id="iconSearch" placeholder="Tìm kiếm icon..." style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
+
+        <div id="iconGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 10px;">
+            <!-- Icons will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- JS -->
+<script>
+    // Icon list - Emoji icons (works everywhere without CDN)
+    const iconList = [
+        '💰', '💳', '💵', '💴', '💶', '💷', '💸', '🏦', '🏧', '💹',
+        '🛒', '🛍️', '📦', '🚗', '🚕', '🚙', '✈️', '🏨', '🍔', '🍕',
+        '🍜', '☕', '🍎', '🍊', '🍌', '👕', '👗', '👔', '👠', '👞',
+        '📱', '💻', '⌚', '📷', '📹', '🎮', '🎨', '✏️', '📚', '📖',
+        '🏥', '⚕️', '💊', '🏋️', '🤸', '🚴', '⚽', '🏀', '🎾', '🏐',
+        '🎭', '🎪', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🎸', '🥁',
+        '🌍', '🌎', '🌏', '🗺️', '🏔️', '⛰️', '🏜️', '🏖️', '🏝️', '🌊',
+        '⭐', '🌟', '✨', '⚡', '🔥', '🌈', '🌤️', '⛅', '🌦️', '🌧️',
+        '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔',
+        '👨', '👩', '👦', '👧', '👨‍👩‍👧‍👦', '👪', '🐶', '🐱', '🐭', '🐹',
+        '📈', '📉', '💼', '📊', '📋', '📄', '📃', '📑', '🎯', '🎁',
+        '✅', '❌', '⚠️', '🔔', '🔕', '📢', '📣', '📯', '📞', '📧'
+    ];
+
+    function openIconPicker() {
+        document.getElementById('iconPickerOverlay').style.display = 'flex';
+        renderIcons(iconList);
+    }
+
+    function closeIconPicker() {
+        document.getElementById('iconPickerOverlay').style.display = 'none';
+    }
+
+    function renderIcons(icons) {
+        const grid = document.getElementById('iconGrid');
+        grid.innerHTML = '';
+        
+        icons.forEach(icon => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.innerHTML = icon;
+            btn.style.cssText = `
+                font-size: 32px;
+                padding: 10px;
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                background: var(--input-bg, transparent);
+                cursor: pointer;
+                transition: all 0.2s;
+            `;
+            btn.onmouseover = () => btn.style.transform = 'scale(1.1)';
+            btn.onmouseout = () => btn.style.transform = 'scale(1)';
+            btn.onclick = (e) => {
+                e.preventDefault();
+                selectIcon(icon);
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    function selectIcon(icon) {
+        document.getElementById('id_icon').value = icon;
+        document.getElementById('iconPreview').textContent = icon;
+        closeIconPicker();
+    }
+
+    document.getElementById('iconSearch').addEventListener('input', (e) => {
+        const search = e.target.value.toLowerCase();
+        const filtered = iconList.filter(icon => icon.includes(search) || search === '');
+        renderIcons(filtered.length > 0 ? filtered : iconList);
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('iconPickerOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeIconPicker();
+    });
+
+    function openModal() {
+        document.getElementById('modalOverlay').style.display = 'flex';
+    }
+    
+    function closeModal() {
+        document.getElementById('modalOverlay').style.display = 'none';
+    }
+    
+    // Bấm ra ngoài modal thì đóng
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+    
+    // Auto-open modal if there are form errors
+    {% if show_form %}
+        openModal();
+    {% endif %}
+
+    // Display selected icon on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const iconField = document.getElementById('id_icon');
+        if (iconField && iconField.value) {
+            document.getElementById('iconPreview').textContent = iconField.value;
+        }
+    });
+</script>
+
+<!-- CSS -->
+<style>
+    #modalOverlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .icon-picker-overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1001;
+    }
+
+    .icon-picker-box {
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    #id_icon {
+        display: none;
+    }
+</style>

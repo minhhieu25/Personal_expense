@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <title>{% block title %} Dashboard - CryptoVault {% endblock %}</title>
+
+        <script>
+            // Load theme immediately to prevent flash
+            (function() {
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            })();
+        </script>
+
+        {% block cssblock %}
+        {% endblock %}
+    </head>
+
+    <body>
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </button>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="dashboard">
+            {% include "sidebar.html" %}
+
+            <!-- Main Content -->
+            <main class="main-content">
+                {% block content %}
+                {% endblock %}
+
+                {% include "footer.html" %}
+            </main>
+        </div>
+        
+        {% block jsblock %}
+        {% endblock %}
+    </body>
+</html>

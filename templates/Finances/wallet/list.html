@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Ví{% endblock %}
+
+{% block cssblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-style.css' %}">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-pages.css' %}">
+    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-login.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Ví</h1>
+        <p>Kiểm soát số dư trong túi ví của bạn</p>
+    </div>
+
+    <!-- Balance Cards -->
+    <div class="balance-cards">
+        <div class="balance-card primary">
+            <div class="balance-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1c1c1e" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+            </div>
+            <div class="balance-label">Tổng số dư</div>
+            <div class="balance-value">{{ total_formatted }}</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{% url 'finances:wallet_add' %}">
+            <button class="action-btn">
+                <span>+</span>
+                Thêm ví
+            </button>
+        </a>
+        {% comment %} <button class="action-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="5 12 12 5 19 12"/>
+                <line x1="12" y1="19" x2="12" y2="5"/>
+            </svg>
+            Withdraw
+        </button> {% endcomment %}
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+        <!-- Wallet Addresses -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Ví của bạn</h2>
+            </div>
+            <div class="wallet-list">
+                {% for i in wallet %}
+                    <div class="wallet-item">
+                        <div class="wallet-icon btc">{{ i.icon }}</div>
+                        <div class="wallet-info">
+                            <div class="wallet-name">{{ i.name }}</div>
+                            <div class="wallet-address">{{ i.balance_vnd }}</div>
+                        </div>
+                        {% comment %} <div class="wallet-balance">
+                            <div class="wallet-amount">0.8542 BTC</div>
+                            <div class="wallet-usd">$36,942.50</div>
+                        </div> {% endcomment %}
+                        <!--nut chinh sua-->
+                        <a href="{% url 'finances:wallet_edit' i.id %}">
+                            <button class="edit-btn" style="background: #3b82f6; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Sửa
+                            </button>
+                        </a>
+                        <!--Nut xoa-->
+                        <form method="post" action="{% url 'finances:wallet_delete' i.id %}">
+                            {% csrf_token %}
+                            <button class="delete-btn" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                                Xóa
+                            </button>
+                        </form>
+                    </div>
+                {% empty %} 
+                    <div class="wallet-item">
+                        <p>Chưa có ví nào!</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}  
+
+{% block jsblock %}
+    <script src="{% static 'homepage/js/templatemo-crypto-script.js' %}"></script>
+{% endblock %}
+

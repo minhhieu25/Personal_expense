@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-592143abcc-9b15_fa013cfc9f",
+  "featureId": "feat_library_592143abcc",
+  "title": "Editing an existing transaction corrupts wallet balance when the wallet is unchanged",
+  "category": "data-loss",
+  "severity": "high",
+  "confidence": "high",
+  "triage": "confirmed-bug",
+  "evidence": [
+    {
+      "path": "Finances/models.py",
+      "startLine": 63,
+      "endLine": 91,
+      "symbol": "Transaction.save",
+      "quote": null
+    }
+  ],
+  "reasoning": "For existing transactions, the old amount is reversed on old.wallet, but old.wallet is only saved when the wallet changes. When the wallet stays the same, that reversal is discarded because self.wallet is a separate loaded instance; the new amount is then applied on top of the pre-edit balance. Editing an income transaction from 100 to 50 on the same wallet turns a 100 balance into 150 instead of 50, and expense edits have the equivalent error.",
+  "reproduction": "Create a wallet with balance 0, create a 'Thu nhập' transaction for 100, then edit the same transaction to amount 50 without changing wallet. The wallet balance becomes 150 instead of 50.",
+  "recommendation": "Apply the delta when the wallet is unchanged, or reload and update a single wallet instance inside an atomic transaction. Save both old and new wallets only when they are different.",
+  "whyTestsDoNotAlreadyCoverThis": "Finances/tests.py contains only the default TestCase import and no transaction balance tests.",
+  "suggestedRegressionTest": "Add a test that creates income and expense transactions, edits amount/type/category with the same wallet, and asserts the wallet balance equals the recomputed transaction total.",
+  "minimumFixScope": "Update Transaction.save balance adjustment logic and cover same-wallet edit cases.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-592143abcc_9b1568c957",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260522T161939-17a820",
+  "createdAt": "2026-05-22T16:20:30.941Z",
+  "updatedAt": "2026-05-22T16:20:30.941Z"
+}

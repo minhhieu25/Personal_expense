@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-592143abcc-9168_73a48d57c2",
+  "featureId": "feat_library_592143abcc",
+  "title": "Invalid edit form submissions return no HTTP response",
+  "category": "bug",
+  "severity": "medium",
+  "confidence": "high",
+  "triage": "confirmed-bug",
+  "evidence": [
+    {
+      "path": "Finances/views.py",
+      "startLine": 48,
+      "endLine": 54,
+      "symbol": "CategoryEditView.post",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 107,
+      "endLine": 113,
+      "symbol": "WalletEditView.post",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 157,
+      "endLine": 165,
+      "symbol": "TransactionEditView.post",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 221,
+      "endLine": 229,
+      "symbol": "BudgetEditView.post",
+      "quote": null
+    }
+  ],
+  "reasoning": "Each edit post handler redirects only when form.is_valid() is true and otherwise falls off the end of the method. Django class-based view handlers must return an HttpResponse; invalid input or uniqueness violations will raise a server error instead of redisplaying the form with validation errors.",
+  "reproduction": "Submit an edit form with invalid data, such as a non-numeric amount for a wallet or duplicate values that violate model validation. The post method returns None.",
+  "recommendation": "For every edit post handler, render the edit template with the bound invalid form and object context, preserving filtered querysets where applicable.",
+  "whyTestsDoNotAlreadyCoverThis": "Finances/tests.py has no tests for invalid form submissions.",
+  "suggestedRegressionTest": "Add tests posting invalid data to category, wallet, transaction, and budget edit URLs and assert a 200 response with form errors.",
+  "minimumFixScope": "Add invalid-form return paths to the affected edit views.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-592143abcc_916830edc7",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260522T161939-17a820",
+  "createdAt": "2026-05-22T16:20:30.941Z",
+  "updatedAt": "2026-05-22T16:20:30.941Z"
+}
