@@ -7,10 +7,10 @@ Hướng dẫn cài đặt Project:
     Cài đặt framework django:
         pip install django
 
-    Cài đặt psycopg2-binary
+    Cài đặt psycopg2-binary (PostgreSQL):
         pip install psycopg2-binary
     
-    Cài đặt restframework
+    Cài đặt restframework:
         python -m pip install djangorestframework
 
     Cài đặt thư viện Pillow xử lý ảnh:
@@ -19,7 +19,7 @@ Hướng dẫn cài đặt Project:
     Lệnh tạo bảng:
         python manage.py migrate
 
-    Lệnh tạo tài khoản admin
+    Lệnh tạo tài khoản admin:
         python manage.py createsuperuser
         
     Truy cập vào đường link:
