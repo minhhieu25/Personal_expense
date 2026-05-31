@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "projectId": "prj_e-project-django-project-chi-tie_78661fa8ca",
+  "projectId": "prj_e-project-django-project-chi-tie_0e1588dee0",
   "name": "Chi_Tieu_Ca_Nhan",
-  "rootPath": "E:\\PROJECT_DJANGO\\PROJECT\\Chi_Tieu_Ca_Nhan",
+  "rootPath": "E:/PROJECT_DJANGO/PROJECT/Chi_Tieu_Ca_Nhan",
   "git": {
     "remoteUrl": null,
     "defaultBranch": null,
-    "currentBranch": null,
-    "headSha": null
+    "currentBranch": "master",
+    "headSha": "d2a887465cc2564edd99b58b5fa3fefbee48f38e"
   },
   "detected": {
     "languages": [
@@ -24,6 +24,6 @@
       "test": null
     }
   },
-  "createdAt": "2026-05-22T16:01:52.088Z",
-  "updatedAt": "2026-05-22T16:01:52.088Z"
+  "createdAt": "2026-05-24T15:05:58.387Z",
+  "updatedAt": "2026-05-24T15:05:58.387Z"
 }

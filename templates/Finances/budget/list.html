@@ -1,465 +1,470 @@
 {% extends "base.html" %}
 {% load static %}
+{% load finances_filters %}
 
-{% block title %} Ngân sách {% endblock %}
+{% block title %}Ngân sách{% endblock %}
 
 {% block cssblock %}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-style.css' %}">
-    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-dashboard.css' %}">
-    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-pages.css' %}">
-    <link rel="stylesheet" href="{% static 'homepage/css/templatemo-crypto-login.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="{% static 'homepage/css/style.css' %}">
+<link rel="stylesheet" href="{% static 'homepage/css/pages.css' %}">
 
-    <style>
-        /* Progress Bar */
-        .progress-container {
-            width: 100%;
-            height: 5px;
-            background-color: #e0e0e0;
-            border-radius: 3px;
-            margin-bottom: 5px;
-            overflow: hidden;
-        }
+<style>
+    /* Summary Cards */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
 
-        .progress-bar {
-            height: 100%;
-            background-color: #4CAF50;
-            transition: width 0.3s ease;
-            border-radius: 3px;
-        }
+    .summary-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        padding: 20px;
+        border-radius: 14px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
 
-        .progress-bar.warning {
-            background-color: #ff9800;
-        }
+    .summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
 
-        .progress-bar.danger {
-            background-color: #f44336;
-        }
+    /* Color bars for summary */
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+    }
 
-        /* Filter Tabs */
-        .filter-tabs {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 25px;
-        }
+    .summary-card.total-amount::before {
+        background: #6366f1;
+    }
 
-        .filter-tab {
-            padding: 10px 16px;
-            border: none;
-            background-color: #f0f0f0;
-            color: #333;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
+    .summary-card.total-spent::before {
+        background: #ef4444;
+    }
 
-        .filter-tab:hover {
-            background-color: #e0e0e0;
-        }
+    .summary-card.total-remaining::before {
+        background: #10b981;
+    }
 
-        .filter-tab.active {
-            background-color: #2196F3;
-            color: white;
-        }
+    .summary-card.total-progress::before {
+        background: #f59e0b;
+    }
 
-        /* Summary Grid */
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-            gap: 16px;
-            margin-bottom: 30px;
-        }
+    .summary-label {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
 
-        .summary-card {
-            background: white;
-            border-left: 4px solid #2196F3;
-            padding: 20px;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
+    .summary-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 6px;
+    }
 
-        .summary-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-        }
+    .summary-subtext {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
 
-        .summary-card.total-amount {
-            border-left-color: #667eea;
-        }
+    .summary-progress-container {
+        width: 100%;
+        height: 6px;
+        background-color: var(--border);
+        border-radius: 3px;
+        overflow: hidden;
+        margin: 10px 0 6px 0;
+    }
 
-        .summary-card.total-spent {
-            border-left-color: #f5576c;
-        }
+    .summary-progress-bar {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
 
-        .summary-card.total-remaining {
-            border-left-color: #4facfe;
-        }
+    /* Filter Tabs */
+    .filter-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        /* Firefox */
+    }
 
-        .summary-card.total-progress {
-            border-left-color: #43e97b;
-        }
+    .filter-tabs::-webkit-scrollbar {
+        display: none;
+    }
 
-        .summary-label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-        }
+    /* Chrome */
 
-        .summary-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
-        }
+    .filter-tab {
+        padding: 8px 16px;
+        border-radius: 20px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s;
+    }
 
-        .summary-progress-container {
-            width: 100%;
-            height: 6px;
-            background-color: #f0f0f0;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
+    .filter-tab:hover {
+        border-color: var(--text-muted);
+    }
 
-        .summary-progress-bar {
-            height: 100%;
-            background-color: #43e97b;
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
+    .filter-tab.active {
+        background: var(--accent-copper);
+        border-color: var(--accent-copper);
+        color: #fff;
+    }
 
-        .summary-subtext {
-            font-size: 12px;
-            color: #999;
-            margin-top: 8px;
-        }
+    /* Budget Table */
+    .giao-dich-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-        /* Table Styles */
-        .market-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+    .giao-dich-table th {
+        text-align: left;
+        padding: 14px 16px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border);
+        font-weight: 600;
+    }
 
-        .market-table thead th {
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
-            color: #333;
-            border-bottom: 2px solid #e0e0e0;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+    .giao-dich-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+        font-size: 14px;
+    }
 
-        .market-table tbody td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #f0f0f0;
-        }
+    .giao-dich-table tbody tr:last-child td {
+        border-bottom: none;
+    }
 
-        .market-table tbody tr:hover {
-            background-color: #f9f9f9;
-        }
+    .giao-dich-table tbody tr:hover {
+        background: rgba(0, 0, 0, 0.015);
+    }
 
-        .text-right {
-            text-align: right;
-        }
+    .coin-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--accent-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+        color: #fff;
+    }
 
-        .coin-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .budget-progress {
+        width: 100%;
+        height: 6px;
+        background: var(--border);
+        border-radius: 4px;
+        margin-bottom: 4px;
+        overflow: hidden;
+    }
 
-        .coin-icon {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
+    .budget-progress-bar {
+        height: 100%;
+        border-radius: 4px;
+        background: #10b981;
+    }
 
-        .coin-name {
-            font-weight: 600;
-            color: #333;
-            font-size: 14px;
-        }
+    .budget-progress-bar.warning {
+        background: #f59e0b;
+    }
 
-        .wallet-address {
-            font-size: 12px;
-            color: #999;
-        }
+    .budget-progress-bar.danger {
+        background: #ef4444;
+    }
 
-        .change-cell {
-            font-size: 13px;
-            color: #333;
-        }
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border: none;
+        background-color: var(--accent-copper);
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
 
-        .volume-cell, .mcap-cell, .price-cell {
-            font-size: 13px;
-            color: #333;
-            font-weight: 500;
-        }
+    .action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(184, 115, 51, 0.3);
+    }
 
-        .star-btn {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: #ccc;
-            transition: color 0.2s ease;
-        }
+    /* Nút icon sửa/xóa trong bảng */
+    .btn-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #fff;
+        margin-left: 4px;
+    }
 
-        .star-btn:hover,
-        .star-btn.active {
-            color: #ffc107;
-        }
+    .btn-edit {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
 
-        /* Add Button */
-        .action-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            border: none;
-            background-color: #2196F3;
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
-        }
+    .btn-edit:hover {
+        background: #3b82f6;
+        color: #fff;
+    }
 
-        .action-btn:hover {
-            background-color: #1976D2;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
-        }
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
 
-        .action-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
-        }
+    .btn-delete:hover {
+        background: #ef4444;
+        color: #fff;
+    }
 
-        .action-btn span {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            .summary-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
-
-            .action-btn {
-                padding: 10px 18px;
-                font-size: 14px;
-            }
-        }
-    </style>
-
+    .wallet-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        background: rgba(184, 115, 51, 0.1);
+        color: var(--accent-copper);
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-        <div class="page-header">
-            <h1>Ngân sách</h1>
-            <p>Hãy tạo ngân sách của bạn một cách thật thông minh</p>
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-end;">
+    <div>
+        <h1>Ngân sách</h1>
+        <p>Quản lý và theo dõi kế hoạch chi tiêu của bạn</p>
+    </div>
+    <a href="{% url 'finances:budget_add' %}">
+        <button class="action-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Thêm ngân sách
+        </button>
+    </a>
+</div>
+
+<!-- Summary Section -->
+<div class="summary-grid">
+    <div class="summary-card total-amount">
+        <div class="summary-label">Tổng ngân sách</div>
+        <div class="summary-value">{{ summary.total_amount|format_currency|default:"0 đ" }}</div>
+        <div class="summary-subtext">Tổng số tiền kế hoạch</div>
+    </div>
+    <div class="summary-card total-spent">
+        <div class="summary-label">Đã chi</div>
+        <div class="summary-value" style="color: #ef4444;">{{ summary.total_spent|format_currency|default:"0 đ" }}</div>
+        <div class="summary-subtext">Số tiền đã sử dụng</div>
+    </div>
+    <div class="summary-card total-remaining">
+        <div class="summary-label">Còn lại</div>
+        <div class="summary-value" style="color: #10b981;">{{ summary.total_remaining|format_currency|default:"0 đ" }}
         </div>
-
-
-        <div style="margin-bottom: 25px;">
-            <a href="{% url 'finances:budget_add' %}">
-                <button class="action-btn">
-                    <span>+</span>
-                    Thêm ngân sách
-                </button>
-            </a>
-        </div>
-
-        <!-- Summary Section -->
-        <div class="summary-grid">
-            <!-- Tổng ngân sách -->
-            <div class="summary-card total-amount">
-                <div class="summary-label">💰 Tổng ngân sách</div>
-                <div class="summary-value">{{ summary.total_amount|floatformat:0|default:"0" }} đ</div>
-                <div class="summary-subtext">Tổng chi phí được phân bổ</div>
-            </div>
-
-            <!-- Tổng đã chi -->
-            <div class="summary-card total-spent">
-                <div class="summary-label">📊 Tổng đã chi</div>
-                <div class="summary-value">{{ summary.total_spent|floatformat:0|default:"0" }} đ</div>
-                <div class="summary-subtext">Số tiền đã sử dụng</div>
-            </div>
-
-            <!-- Còn lại -->
-            <div class="summary-card total-remaining">
-                <div class="summary-label">✨ Còn lại</div>
-                <div class="summary-value">{{ summary.total_remaining|floatformat:0|default:"0" }} đ</div>
-                <div class="summary-subtext">Số tiền chưa sử dụng</div>
-            </div>
-
-            <!-- Progress -->
-            <div class="summary-card total-progress">
-                <div class="summary-label">📈 Tiến độ</div>
-                <div class="summary-value">{{ summary.percent_spent|default:"0" }}%</div>
-                <div class="summary-progress-container">
-                    <div class="summary-progress-bar" style="width: {{ summary.percent_spent|default:"0" }}%"></div>
-                </div>
-                <div class="summary-subtext">{% if summary.percent_spent >= 100 %}⚠️ Vượt quá ngân sách!{% elif summary.percent_spent >= 80 %}⚡ Gần hết ngân sách!{% else %}✅ Còn trong ngân sách{% endif %}</div>
+        <div class="summary-subtext">Có thể tiếp tục chi tiêu</div>
+    </div>
+    <div class="summary-card total-progress">
+        <div class="summary-label">Tiến độ chung</div>
+        <div class="summary-value">{{ summary.percent_spent|default:"0" }}%</div>
+        <div class="summary-progress-container">
+            <div class="summary-progress-bar"
+                style="width: {{ summary.percent_spent|default:'0' }}%; background: {% if summary.percent_spent >= 100 %}#ef4444{% elif summary.percent_spent >= 80 %}#f59e0b{% else %}#10b981{% endif %};">
             </div>
         </div>
-
-        <!-- Filters -->
-        <div class="filter-tabs">
-            <button class="filter-tab {% if repeat_filter == 'all' %}active{% endif %}" data-filter="all">Tất cả</button>
-            <button class="filter-tab {% if repeat_filter == 'none' %}active{% endif %}" data-filter="none">Không lặp lại</button>
-            <button class="filter-tab {% if repeat_filter == 'daily' %}active{% endif %}" data-filter="daily">Hằng ngày</button>
-            <button class="filter-tab {% if repeat_filter == 'weekly' %}active{% endif %}" data-filter="weekly">Hằng tuần</button>
-            <button class="filter-tab {% if repeat_filter == 'monthly' %}active{% endif %}" data-filter="monthly">Hằng tháng</button>
-            <button class="filter-tab {% if repeat_filter == 'yearly' %}active{% endif %}" data-filter="yearly">Hằng năm</button>
+        <div class="summary-subtext">
+            {% if summary.percent_spent >= 100 %}⚠️ Vượt ngân sách!
+            {% elif summary.percent_spent >= 80 %}⚡ Gần hết ngân sách!
+            {% else %}✅ Trong tầm kiểm soát{% endif %}
         </div>
+    </div>
+</div>
 
-        <!-- Budget Table -->
-        <div class="card">
-            <table class="market-table">
-                <thead>
-                    <tr>
-                        <th>Danh mục</th>
-                        <th class="text-right">Ví</th>
-                        <th class="text-right">Đã chi</th>
-                        <th class="text-right">Còn lại</th>
-                        <th class="text-right">Mỗi ngày nên chi</th>
-                        <th class="text-right">Mỗi ngày còn lại</th>
-                        <th class="text-right">Lặp lại</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                {% for i in budget %}
-                <tbody data-repeat="{{ i.repeat }}"> 
-                    <tr>
-                        <td>
-                            <div class="coin-cell">
-                                <div class="coin-icon">{{ i.category.icon }}</div>
-                                <div>
-                                    <div class="coin-name">{{ i.category }}</div>
-                                    <div class="wallet-address">{{ i.amount|floatformat:0 }} đ</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="price-cell">{{ i.wallet }}</td>
-                        <td class="change-cell">
-                            <div class="progress-container">
-                                <div class="progress-bar" style="width: {{ i.percent_spent }}%"></div>
-                            </div>
-                            <span style="font-size: 12px;">{{ i.spent|floatformat:0 }} đ ({{ i.percent_spent|floatformat:0 }}%)</span>
-                        </td>
-                        <td class="volume-cell">{{ i.remaining|floatformat:0 }} đ</td>
-                        <td class="mcap-cell">{{ i.should_spend_per_day|floatformat:0 }} đ</td>
-                        <td class="mcap-cell">{{ i.remaining_per_day|floatformat:0 }} đ</td>
-                        <td class="mcap-cell">{{ i.repeat }}</td>
-                        <td>
-                            <a href="{% url 'finances:budget_edit' i.id %}">
-                                <button class="edit-btn" style="background: #3b82f6; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                    </svg>
-                                    Sửa
-                                </button>
-                            </a>
-                        </td>
-                        <td>
-                            <form method="post" action="{% url 'finances:budget_delete' i.id %}">
+<!-- Filters -->
+<div class="filter-tabs">
+    <button class="filter-tab {% if repeat_filter == 'all' %}active{% endif %}" data-filter="all">Tất cả</button>
+    <button class="filter-tab {% if repeat_filter == 'none' %}active{% endif %}" data-filter="none">Không lặp
+        lại</button>
+    <button class="filter-tab {% if repeat_filter == 'daily' %}active{% endif %}" data-filter="daily">Hằng ngày</button>
+    <button class="filter-tab {% if repeat_filter == 'weekly' %}active{% endif %}" data-filter="weekly">Hằng
+        tuần</button>
+    <button class="filter-tab {% if repeat_filter == 'monthly' %}active{% endif %}" data-filter="monthly">Hằng
+        tháng</button>
+    <button class="filter-tab {% if repeat_filter == 'yearly' %}active{% endif %}" data-filter="yearly">Hằng
+        năm</button>
+</div>
+
+<!-- Budget Table -->
+<div class="card" style="padding:0; overflow-x:auto;">
+    <table class="giao-dich-table">
+        <thead>
+            <tr>
+                <th>Danh mục</th>
+                <th>Ví áp dụng</th>
+                <th>Tiến độ chi tiêu</th>
+                <th style="text-align:right;">Còn lại</th>
+                <th style="text-align:right;">Mỗi ngày (Gợi ý)</th>
+                <th style="text-align:center;">Lặp lại</th>
+                <th style="text-align:right;">Thao tác</th>
+            </tr>
+        </thead>
+        {% for i in budget %}
+        <tbody data-repeat="{{ i.repeat }}">
+            <tr>
+                <td>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="coin-icon">{{ i.category.icon|default:"🏷️" }}</div>
+                        <div>
+                            <div style="font-weight:600; color:var(--text-primary);">{{ i.category.name }}</div>
+                            <div style="font-size:12px; color:var(--text-muted);">{{ i.amount|format_currency }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="wallet-badge">{{ i.wallet.name }}</span>
+                </td>
+                <td style="min-width: 150px;">
+                    <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                        <span style="font-weight:500; color:#ef4444;">{{ i.spent|format_currency }}</span>
+                        <span style="color:var(--text-muted);">{{ i.percent_spent|floatformat }}%</span>
+                    </div>
+                    <div class="budget-progress">
+                        <div class="budget-progress-bar {% if i.percent_spent >= 100 %}danger{% elif i.percent_spent >= 80 %}warning{% endif %}"
+                            style="width: {{ i.percent_spent }}%;"></div>
+                    </div>
+                </td>
+                <td style="text-align:right; font-weight:600; color:var(--text-primary);">
+                    {{ i.remaining|format_currency }}
+                </td>
+                <td style="text-align:right;">
+                    <div style="font-size:13px; color:var(--text-primary);">Nên chi: {{ i.should_spend_per_day|format_currency }}</div>
+                    <div style="font-size:12px; color:var(--text-muted);">Còn: {{ i.remaining_per_day|format_currency }}
+                    </div>
+                </td>
+                <td style="text-align:center;">
+                    <span
+                        style="font-size:12px; background:var(--bg-primary); padding:4px 8px; border-radius:6px; border:1px solid var(--border);">
+                        {{ i.get_repeat_display|default:i.repeat }}
+                    </span>
+                </td>
+                <td style="text-align:right;">
+                    <div style="display:flex; justify-content:flex-end; gap:4px;">
+                        <a href="{% url 'finances:budget_edit' i.id %}" title="Sửa" class="btn-icon btn-edit">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </a>
+                        <form method="post" action="{% url 'finances:budget_delete' i.id %}" style="display:inline;"
+                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa ngân sách này?');">
                             {% csrf_token %}
-                            <button class="delete-btn" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                            <button type="submit" title="Xóa" class="btn-icon btn-delete">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <path
+                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2 2h4a2 2 0 0 1 2 2v2">
+                                    </path>
                                     <line x1="10" y1="11" x2="10" y2="17"></line>
                                     <line x1="14" y1="11" x2="14" y2="17"></line>
                                 </svg>
-                                Xóa
                             </button>
                         </form>
-                        </td>    
-                    </tr> 
-                </tbody>
-                {% empty %}
-                <tbody>
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px; color: #999;">
-                            Chưa có ngân sách nào! <a href="{% url 'finances:budget_add' %}" style="color: #2196F3;">Tạo ngân sách đầu tiên</a>
-                        </td>
-                    </tr>
-                </tbody>
-                {% endfor %}
-            </table> 
-        </div>
-{% endblock %} 
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+        {% empty %}
+        <tbody>
+            <tr>
+                <td colspan="7" style="text-align:center; padding:40px 20px;">
+                    <div style="font-size:48px; margin-bottom:12px;">📊</div>
+                    <h3 style="margin-bottom:8px;">Chưa có ngân sách nào</h3>
+                    <p style="color:var(--text-muted); margin-bottom:16px;">Hãy tạo ngân sách để kiểm soát chi tiêu tốt
+                        hơn.</p>
+                    <a href="{% url 'finances:budget_add' %}" class="btn primary" style="text-decoration: none;">Thêm
+                        ngân sách đầu tiên</a>
+                </td>
+            </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
 
 {% block jsblock %}
-    <script src="{% static 'homepage/js/templatemo-crypto-script.js' %}"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const filterButtons = document.querySelectorAll('.filter-tab');
-            const tableRows = document.querySelectorAll('tbody[data-repeat]');
+<script src="{% static 'homepage/js/script.js' %}"></script>
 
-            // Sự kiện click cho filter buttons
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const filter = this.getAttribute('data-filter');
-                    
-                    // Cập nhật active button
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Lọc rows
-                    tableRows.forEach(row => {
-                        if (filter === 'all' || row.getAttribute('data-repeat') === filter) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterButtons = document.querySelectorAll('.filter-tab');
+        const tableRows = document.querySelectorAll('tbody[data-repeat]');
+
+        // Sự kiện click cho filter buttons
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const filter = this.getAttribute('data-filter');
+
+                // Cập nhật active button
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                // Lọc rows
+                tableRows.forEach(row => {
+                    if (filter === 'all' || row.getAttribute('data-repeat') === filter) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
                 });
             });
-
-            // Cập nhật màu progress bar theo % đã chi
-            tableRows.forEach(row => {
-                const progressBar = row.querySelector('.progress-bar');
-                const changeCell = row.querySelector('.change-cell');
-                
-                if (changeCell && progressBar) {
-                    const text = changeCell.innerText;
-                    const match = text.match(/(\d+(?:\.\d+)?)\s*%/);
-                    if (match) {
-                        const percent = parseFloat(match[1]);
-                        
-                        // Xóa các class cũ
-                        progressBar.classList.remove('warning', 'danger');
-                        
-                        // Thêm class mới theo điều kiện
-                        if (percent >= 100) {
-                            progressBar.classList.add('danger');
-                        } else if (percent >= 80) {
-                            progressBar.classList.add('warning');
-                        }
-                    }
-                }
-            });
         });
-    </script>
+    });
+</script>
 {% endblock %}

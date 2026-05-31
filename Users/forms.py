@@ -20,3 +20,30 @@ class RegisterFrom(UserCreationForm):
         self.fields['email'].widget.attrs.update({'class': 'email'})
         self.fields['password1'].widget.attrs.update({'class': 'password1'})
         self.fields['password2'].widget.attrs.update({'class': 'password2'})
+
+
+class CustomUserForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['email', 'first_name', 'last_name', 'avatar']
+        widgets = {
+            'email': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),        
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'avatar': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+
+class PasswordChangeForm(forms.Form):
+    old_password = forms.CharField(widget=forms.PasswordInput)
+    new_password = forms.CharField(widget=forms.PasswordInput)
+    new_password2 = forms.CharField(widget=forms.PasswordInput)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password = cleaned_data.get('new_password')
+        new_password2 = cleaned_data.get('new_password2')
+
+        if new_password and new_password2 and new_password != new_password2:
+            raise forms.ValidationError("Mật khẩu mới không khớp!")
+        return cleaned_data

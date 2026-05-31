@@ -1,0 +1,443 @@
+{% extends "base.html" %}
+{% load static %}
+{% load finances_filters %}
+
+{% block title %}Báo cáo tài chính{% endblock %}
+
+{% block cssblock %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="{% static 'homepage/css/style.css' %}">
+<link rel="stylesheet" href="{% static 'homepage/css/pages.css' %}">
+
+<style>
+    /* Summary Cards */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .summary-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        padding: 20px;
+        border-radius: 14px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+    }
+
+    .summary-card.total-income::before {
+        background: #10b981;
+    }
+
+    .summary-card.total-expense::before {
+        background: #ef4444;
+    }
+
+    .summary-card.total-saving-positive::before {
+        background: #3b82f6;
+    }
+
+    .summary-card.total-saving-negative::before {
+        background: #f59e0b;
+    }
+
+    .summary-label {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .summary-value {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .summary-diff {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 6px;
+        width: fit-content;
+    }
+
+    .diff-up {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
+    .diff-down {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    /* Filter Controls */
+    .filter-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .filter-select {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+
+    .filter-select:focus {
+        border-color: var(--accent-copper);
+        box-shadow: 0 0 0 3px rgba(184, 115, 51, 0.12);
+    }
+
+    /* Dashboard Layout */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    /* Chart Card */
+    .chart-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+    }
+
+    .chart-header {
+        margin-bottom: 20px;
+    }
+
+    .chart-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    /* Top Categories Card */
+    .top-cat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+    }
+
+    .cat-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .cat-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .cat-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .cat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--accent-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    .cat-name {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+
+    .cat-amount {
+        font-weight: 600;
+        color: #ef4444;
+        font-size: 14px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 30px 10px;
+        color: var(--text-muted);
+    }
+
+    @media (max-width: 992px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Báo cáo tài chính</h1>
+    <p>Phân tích chi tiết tình hình thu chi của bạn</p>
+</div>
+
+<!-- Bộ lọc -->
+<form method="get" id="reportFilterForm">
+    <div class="filter-group">
+        <!--Chọn ví-->
+        <select name="wallet" class="filter-select" onchange="document.getElementById('reportFilterForm').submit()">
+            <option value="">Tất cả ví (Tổng hợp)</option>
+            {% for w in wallets %}
+                {% if selected_wallet.id == w.id %}
+                    <option value="{{ w.id }}" selected>{{ w.icon }} {{ w.name }}</option>
+                {% else %}
+                    <option value="{{ w.id }}">{{ w.icon }} {{ w.name }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <!--Chọn tháng-->
+        <select name="month" class="filter-select" onchange="document.getElementById('reportFilterForm').submit()">
+            {% for m in "1 2 3 4 5 6 7 8 9 10 11 12"|split:" " %}
+                {% if m == month|stringformat:"i" %}
+                    <option value="{{ m }}" selected>Tháng {{ m }}</option>
+                {% else %}
+                    <option value="{{ m }}">Tháng {{ m }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <!--Chọn năm-->
+        <select name="year" class="filter-select" onchange="document.getElementById('reportFilterForm').submit()">
+            {% for y in "2023 2024 2025 2026 2027 2028 2029 2030"|split:" " %}
+                {% if y == year|stringformat:"i" %}
+                    <option value="{{ y }}" selected>Năm {{ y }}</option>
+                {% else %}
+                    <option value="{{ y }}">Năm {{ y }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+</form>
+
+<!-- Tổng quan -->
+<div class="summary-grid">
+    <!-- Tổng thu -->
+    <div class="summary-card total-income">
+        <div>
+            <div class="summary-label">Tổng thu</div>
+            <div class="summary-value" style="color: #10b981;">+ {{ total_income|format_currency }}</div>
+        </div>
+
+        {% if comparison.income_diff > 0 %}
+        <div class="summary-diff diff-up">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+            {{ comparison.income_diff|format_currency }} vs tháng trước
+        </div>
+        {% elif comparison.income_diff < 0 %} <div class="summary-diff diff-down">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+            {{ comparison.income_diff|format_currency }} vs tháng trước
+    </div>
+    {% else %}
+    <div class="summary-diff" style="background: var(--border); color: var(--text-muted);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Không thay đổi
+    </div>
+    {% endif %}
+</div>
+
+<!-- Tổng chi -->
+<div class="summary-card total-expense">
+    <div>
+        <div class="summary-label">Tổng chi</div>
+        <div class="summary-value" style="color: #ef4444;">- {{ total_expense|format_currency }}</div>
+    </div>
+
+    {% if comparison.expense_diff > 0 %}
+    <div class="summary-diff diff-down">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+        {{ comparison.expense_diff|format_currency }} vs tháng trước
+    </div>
+    {% elif comparison.expense_diff < 0 %} <div class="summary-diff diff-up">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+        {{ comparison.expense_diff|format_currency }} vs tháng trước
+</div>
+{% else %}
+<div class="summary-diff" style="background: var(--border); color: var(--text-muted);">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+    Không thay đổi
+</div>
+{% endif %}
+</div>
+
+<!-- Tiết kiệm -->
+<div class="summary-card {% if total_saving >= 0 %}total-saving-positive{% else %}total-saving-negative{% endif %}">
+    <div>
+        <div class="summary-label">Tiết kiệm</div>
+        <div class="summary-value" style="color: {% if total_saving >= 0 %}#3b82f6{% else %}#f59e0b{% endif %};">
+            {{ total_saving|format_currency }}
+        </div>
+    </div>
+
+    {% if comparison.saving_diff > 0 %}
+    <div class="summary-diff diff-up">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+        {{ comparison.saving_diff|format_currency }} vs tháng trước
+    </div>
+    {% elif comparison.saving_diff < 0 %} <div class="summary-diff diff-down">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+        {{ comparison.saving_diff|format_currency }} vs tháng trước
+</div>
+{% else %}
+<div class="summary-diff" style="background: var(--border); color: var(--text-muted);">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+    Không thay đổi
+</div>
+{% endif %}
+</div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Biểu đồ thu chi theo ngày -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Biểu đồ Thu / Chi theo ngày</h3>
+        </div>
+        <canvas id="dailyChart" height="120"></canvas>
+    </div>
+
+    <!-- Top danh mục chi nhiều nhất -->
+    <div class="top-cat-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Top chi tiêu</h3>
+            <p style="font-size:13px; color:var(--text-muted); margin:4px 0 0 0;">Các danh mục tốn kém nhất</p>
+        </div>
+
+        <div>
+            {% for cat in top_categories %}
+            <div class="cat-item">
+                <div class="cat-info">
+                    <div class="cat-icon">{{ cat.category__icon|default:"🏷️" }}</div>
+                    <div class="cat-name">{{ cat.category__name }}</div>
+                </div>
+                <div class="cat-amount">- {{ cat.total|format_currency }}</div>
+            </div>
+            {% empty %}
+            <div class="empty-state" style="padding:20px 0;">
+                <p style="margin:0;">Chưa có chi tiêu nào</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block jsblock %}
+<script src="{% static 'homepage/js/script.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Xử lý data cho biểu đồ
+    {% autoescape off %}
+    const dailyData = {{ daily_summary }};
+    {% endautoescape %}
+
+    const labels = [...new Set(dailyData.map(d => d.day))];
+
+    const incomeData = labels.map(date => {
+        const found = dailyData.find(d => d.day === date && d.transaction_type === 'Thu nhập');
+        return found ? found.total : 0;
+    });
+
+    const expenseData = labels.map(date => {
+        const found = dailyData.find(d => d.day === date && d.transaction_type === 'Chi tiêu');
+        return found ? found.total : 0;
+    });
+
+    new Chart(document.getElementById('dailyChart'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Thu nhập',
+                    data: incomeData,
+                    backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                },
+                {
+                    label: 'Chi tiêu',
+                    data: expenseData,
+                    backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+</script>
+{% endblock %}

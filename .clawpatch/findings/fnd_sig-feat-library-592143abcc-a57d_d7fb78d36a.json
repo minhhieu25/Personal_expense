@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-592143abcc-a57d_d7fb78d36a",
+  "featureId": "feat_library_592143abcc",
+  "title": "Wallet balances can be corrupted when transaction writes fail or race",
+  "category": "data-loss",
+  "severity": "high",
+  "confidence": "high",
+  "triage": "confirmed-bug",
+  "evidence": [
+    {
+      "path": "Finances/models.py",
+      "startLine": 64,
+      "endLine": 109,
+      "symbol": "Transaction.save",
+      "quote": null
+    },
+    {
+      "path": "Finances/models.py",
+      "startLine": 111,
+      "endLine": 119,
+      "symbol": "Transaction.delete",
+      "quote": null
+    }
+  ],
+  "reasoning": "Transaction.save mutates and saves wallet balances before saving the transaction itself, and delete mutates the wallet before deleting the transaction. These operations are not wrapped in a database transaction and do not lock or use atomic F-expression updates. If the transaction save/delete fails after the wallet save, the wallet balance no longer matches persisted transactions. Concurrent creates/edits/deletes against the same wallet can also overwrite each other's balance calculations because each request reads and writes a stale Wallet.balance value in Python.",
+  "reproduction": null,
+  "recommendation": "Wrap transaction and wallet updates in django.db.transaction.atomic(), lock affected wallet and old transaction rows with select_for_update(), and update balances with F expressions or recompute from transactions after commit-sensitive changes.",
+  "whyTestsDoNotAlreadyCoverThis": "Finances/tests.py contains only the generated placeholder and no tests for transaction save/delete side effects, failure rollback, or concurrent balance updates.",
+  "suggestedRegressionTest": "Add tests that simulate a failed Transaction.save after wallet mutation and concurrent transaction creation/editing for the same wallet, asserting the final Wallet.balance equals the sum of persisted transactions.",
+  "minimumFixScope": "Transaction.save and Transaction.delete balance mutation logic.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-592143abcc_a57d74f032",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260524T150630-f39250",
+  "createdAt": "2026-05-24T15:07:27.357Z",
+  "updatedAt": "2026-05-24T15:07:27.357Z"
+}

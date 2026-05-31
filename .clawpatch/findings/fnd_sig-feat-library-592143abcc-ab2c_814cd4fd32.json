@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-592143abcc-ab2c_814cd4fd32",
+  "featureId": "feat_library_592143abcc",
+  "title": "Several personal finance views are reachable without LoginRequiredMixin",
+  "category": "security",
+  "severity": "medium",
+  "confidence": "high",
+  "triage": "confirmed-bug",
+  "evidence": [
+    {
+      "path": "Finances/views.py",
+      "startLine": 39,
+      "endLine": 60,
+      "symbol": "CategoryEditView, CategoryDeleteView",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 98,
+      "endLine": 119,
+      "symbol": "WalletEditView, WalletDeleteView",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 146,
+      "endLine": 171,
+      "symbol": "TransactionEditView, TransactionDeleteView",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 210,
+      "endLine": 235,
+      "symbol": "BudgetEditView, BudgetDeleteView",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 238,
+      "endLine": 327,
+      "symbol": "CalenderView, SettingView, ReportView",
+      "quote": null
+    }
+  ],
+  "reasoning": "The list/add views generally use LoginRequiredMixin, but edit/delete and several read pages do not. These views still operate on request.user and personal finance data, so anonymous users can reach the endpoints. Some object views may 404 because they filter by user=request.user, but calendar, settings, and report have no explicit authentication gate, and unauthenticated access can expose pages or trigger errors instead of redirecting to login. This is an inconsistent auth boundary for personal financial functionality.",
+  "reproduction": null,
+  "recommendation": "Add LoginRequiredMixin to every class-based finance view that reads or mutates user-owned data, including edit/delete, calendar, settings, and report views. Keep the existing user=request.user object filters for object-level isolation.",
+  "whyTestsDoNotAlreadyCoverThis": "Finances/tests.py has no assertions for anonymous access behavior or redirects to the login page.",
+  "suggestedRegressionTest": "For each URL in Finances/urls.py, add anonymous-client tests asserting protected finance pages redirect to login, plus authenticated-client tests asserting users cannot access another user's objects.",
+  "minimumFixScope": "Finances/views.py class declarations for all unauthenticated finance views.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-592143abcc_ab2cf20668",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260524T150630-f39250",
+  "createdAt": "2026-05-24T15:07:27.358Z",
+  "updatedAt": "2026-05-24T15:07:27.358Z"
+}

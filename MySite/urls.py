@@ -21,11 +21,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
     path('finances', include('Finances.urls')),
-
     path('', include('Users.urls')),
-
+    path('api/v1/', include('API.urls')),
 ]
 
 if settings.DEBUG:

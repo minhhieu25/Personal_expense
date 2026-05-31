@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Finances',
     'Users',
-
+    'API',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -141,3 +142,4 @@ AUTHENTICATION_BACKENDS = [
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+

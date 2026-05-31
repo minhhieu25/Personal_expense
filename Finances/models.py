@@ -32,7 +32,7 @@ class Wallet(models.Model):
         verbose_name_plural = 'Wallets'
 
     def balance_vnd(self):
-        return f"Số dư: {self.balance:,.0f} VNĐ"
+        return f"Số dư: {self.balance:,.0f} đ"
 
     def __str__(self):
         return self.name
@@ -59,37 +59,56 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.amount:,}đ - {self.category.name} ({self.get_transaction_type_display()})"
-    
+
+    def amount_vnd(self):
+        return f"{self.amount:,.0f}"
+
     def save(self, *args, **kwargs):
-        if self.pk: # khi da ton tai giao dich (co pk)
+        if self.pk:  # Sửa giao dịch
             old = Transaction.objects.get(pk=self.pk)
-
-            # hoan lai tien cua vi cu
-            if old.transaction_type == "Thu nhập":
-                old.wallet.balance -= old.amount
-            elif old.transaction_type == "Chi tiêu":   
-                old.wallet.balance += old.amount
-
-            # neu thay doi vi, luu vi cu
-            if old.wallet != self.wallet:
+            
+            # Kiểm tra ví có thay đổi không (so sánh ID, không phải object)
+            wallet_changed = old.wallet.id != self.wallet.id
+            
+            if wallet_changed:
+                # Nếu ví thay đổi: hoàn lại ví cũ, cộng ví mới
+                if old.transaction_type == "Thu nhập":
+                    old.wallet.balance -= old.amount
+                else:
+                    old.wallet.balance += old.amount
                 old.wallet.save()
-
-            # cap nhat tien cua vi moi
+                
+                # Cộng vào ví mới
+                if self.transaction_type == "Thu nhập":
+                    self.wallet.balance += self.amount
+                else:
+                    self.wallet.balance -= self.amount
+                self.wallet.save()
+            else:
+                # Ví không thay đổi: cơ sở dữ liệu vẫn là balance cũ
+                # Phải hoàn lại tiền cũ trước, rồi cộng tiền mới
+                
+                # Hoàn lại giao dịch cũ
+                if old.transaction_type == "Thu nhập":
+                    self.wallet.balance -= old.amount
+                else:
+                    self.wallet.balance += old.amount
+                
+                # Cộng giao dịch mới
+                if self.transaction_type == "Thu nhập":
+                    self.wallet.balance += self.amount
+                else:
+                    self.wallet.balance -= self.amount
+                
+                self.wallet.save()
+        else:  # Giao dịch mới
             if self.transaction_type == "Thu nhập":
                 self.wallet.balance += self.amount
-            elif self.transaction_type == "Chi tiêu":
-                self.wallet.balance -= self.amount
-
-            self.wallet.save()
-        else: # khi co giao dich moi
-            if self.transaction_type == "Thu nhập":
-                self.wallet.balance += self.amount
-            elif self.transaction_type == "Chi tiêu":
+            else:
                 self.wallet.balance -= self.amount
             self.wallet.save()
-
+        
         super().save(*args, **kwargs)
-
 
     def delete(self, *args, **kwargs):
         # khi xóa giao dịch thì hoàn lại số dư
@@ -100,8 +119,8 @@ class Transaction(models.Model):
 
         self.wallet.save()
         super().delete(*args, **kwargs) 
-    
 
+    
 class Budget(models.Model):
     REPEAT_CHOICES = [
         ('none', 'Không lặp lại'),
@@ -125,51 +144,109 @@ class Budget(models.Model):
     def __str__(self):
         return f"{self.category.name} - {self.start_date.strftime('%m/%Y')}"
     
-    # Tinh tong da chi
+    # Xác định khoảng thời gian của chu kỳ hiện tại
+    def get_current_cycle(self):
+        from datetime import timedelta
+        import calendar
+        from django.utils import timezone
+        today = timezone.now().date()
+
+        # Nếu ngân sách chưa bắt đầu, chu kỳ hiện tại là chu kỳ đầu tiên
+        if today < self.start_date:
+            ref_date = self.start_date
+            is_future = True
+        else:
+            ref_date = today
+            is_future = False
+
+        if self.repeat == 'daily':
+            return ref_date, ref_date
+
+        elif self.repeat == 'weekly':
+            if is_future:
+                return self.start_date, self.start_date + timedelta(days=6)
+            else:
+                weeks_passed = (today - self.start_date).days // 7
+                current_start = self.start_date + timedelta(weeks=weeks_passed)
+                return current_start, current_start + timedelta(days=6)
+
+        elif self.repeat == 'monthly':
+            if is_future or (today.year == self.start_date.year and today.month == self.start_date.month):
+                current_start = self.start_date
+            else:
+                current_start = ref_date.replace(day=1)
+            _, last_day = calendar.monthrange(ref_date.year, ref_date.month)
+            current_end = ref_date.replace(day=last_day)
+            return current_start, current_end
+
+        elif self.repeat == 'yearly':
+            if is_future or today.year == self.start_date.year:
+                current_start = self.start_date
+            else:
+                current_start = ref_date.replace(month=1, day=1)
+            current_end = ref_date.replace(month=12, day=31)
+            return current_start, current_end
+
+        else: # none (Không lặp lại)
+            return self.start_date, self.start_date
+
+    # Tính tổng số ngày của chu kỳ hiện tại
+    def cycle_days(self):
+        start, end = self.get_current_cycle()
+        return (end - start).days + 1
+
+    # Tính tổng đã chi trong chu kỳ hiện tại
     def spent(self):
+        from django.db.models import Sum
+        start, end = self.get_current_cycle()
         result = Transaction.objects.filter(
             user=self.user,
             wallet=self.wallet,
             category=self.category,
             transaction_type='Chi tiêu',
-            date__month=self.start_date.month,
-            date__year=self.start_date.year
+            date__gte=start,
+            date__lte=end
         ).aggregate(Sum('amount'))['amount__sum'] or 0
         return result
 
-    # So tien con lai
+    # Số tiền còn lại
     def remaining(self):
         return self.amount - self.spent()
 
-    # Tinh phan tram da chi
+    # Tính phần trăm đã chi
     def percent_spent(self):
         if self.amount == 0:
             return 0
         return round((self.spent() / self.amount) * 100, 1)
     
-    # Số ngày trong tháng
-    def days_in_month(self):
-        return calendar.monthrange(self.start_date.year, self.start_date.month)[1]
-    
-    # Số ngày còn lại trong tháng
+    # Số ngày còn lại trong chu kỳ
     def days_remaining(self):
+        from django.utils import timezone
         today = timezone.now().date()
-        end_of_month = self.start_date.replace(day=self.days_in_month())
-        delta = (end_of_month - today).days
-        return max(delta, 0) # khong tra ve so am
+        start, end = self.get_current_cycle()
+        
+        if today > end:
+            return 0
+        if today < start:
+            return self.cycle_days()
+            
+        delta = (end - today).days + 1
+        return max(delta, 0)
     
     # Mỗi ngày nên chi
     def should_spend_per_day(self):
-        if self.days_in_month() == 0:
+        days = self.cycle_days()
+        if days == 0:
             return 0
-        return round(self.amount / self.days_in_month(), 0)
+        return round(self.amount / days, 0)
 
     # Mỗi ngày còn lại nên chi
     def remaining_per_day(self):
-        if self.days_remaining() == 0:
+        days = self.days_remaining()
+        if days == 0:
             return 0
-        return round(self.remaining() / self.days_remaining(), 0)
-    
+        return round(self.remaining() / days, 0)
+
     @classmethod
     def total_summary(cls, user):
         budget = cls.objects.filter(user=user)
@@ -188,3 +265,56 @@ class Budget(models.Model):
             'percent_spent': round((total_spent / total_amount) * 100, 1) if total_amount else 0,
         }
 
+# tính toán cho biểu đồ
+class ReportService:
+    def __init__(self, user, month, year, wallet=None):
+        self.user = user
+        self.month = month
+        self.year = year
+        self.transactions = Transaction.objects.filter(
+            user=user,
+            date__month=month,
+            date__year=year
+        )
+        # chọn ví
+        if wallet:
+            self.transactions = self.transactions.filter(wallet=wallet)
+        
+    # tổng thu
+    def total_income(self):
+        return self.transactions.filter(transaction_type='Thu nhập').aggregate(Sum('amount'))['amount__sum'] or 0
+
+    # tổng chi
+    def total_expense(self):
+        return self.transactions.filter(transaction_type='Chi tiêu').aggregate(Sum('amount'))['amount__sum'] or 0
+
+    # tiết kiệm
+    def total_saving(self):
+        return self.total_income() - self.total_expense()
+    
+    # top danh muc chi nhieu nhat
+    def top_expense_categories(self, limit=5):
+        return self.transactions.filter(transaction_type='Chi tiêu').values('category__name', 'category__icon').annotate(total=Sum('amount')).order_by('-total')[:limit]
+    
+    # so sánh tháng trước
+    def compare_with_last_month(self):
+        if self.month == 1:
+            last_month, last_year = 12, self.year - 1
+        else:
+            last_month, last_year = self.month - 1, self.year
+
+        last = ReportService(self.user, last_month, last_year)
+        return {
+            'income_diff': self.total_income() - last.total_income(),
+            'expense_diff': self.total_expense() - last.total_expense(),
+            'saving_diff': self.total_saving() - last.total_saving(), 
+        } 
+    
+    # thu chi theo từng ngày trong tháng (cho biểu đồ)
+    def daily_summary(self):
+        from django.db.models.functions import TruncDay
+        # day=TruncDay('date')): cắt datetime xuống mức ngày
+        # values('day', 'transaction_type'): lấy ra ngày + loại giao dịch
+        # annotate(total=Sum('amount')): tính tổng tiền cho mỗi nhóm
+        # order_by('day'): sắp xếp theo ngày
+        return self.transactions.annotate(day=TruncDay('date')).values('day', 'transaction_type').annotate(total=Sum('amount')).order_by('day')

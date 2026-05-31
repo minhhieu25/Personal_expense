@@ -1,200 +1,176 @@
-<!-- Modal -->
-<div class="modal-overlay" id="modalOverlay" style="display:none;">
-    <div class="modal-box" style="background: var(--card-bg); padding: 30px; border-radius: 12px; width: 450px; max-height: 90vh; overflow-y: auto;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2>Thêm danh mục mới</h2>
-            <button onclick="closeModal()" style="background:none; border:none; cursor:pointer; font-size:20px;">✕</button>
+<!-- Modal thêm danh mục mới -->
+<div id="modalOverlay" style="display:none; position:fixed; inset:0; z-index:1000;
+     background:rgba(0,0,0,0.65); align-items:center; justify-content:center;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px;
+                padding:28px; width:100%; max-width:480px; position:relative;
+                box-shadow: 0 24px 60px rgba(0,0,0,0.4);">
+
+        <!-- Tiêu đề -->
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+            <h2 style="font-size:18px; font-weight:700; color:var(--text-primary); margin:0;">
+                Thêm danh mục mới
+            </h2>
+            <button onclick="closeModal()" style="background:none; border:none; color:var(--text-muted);
+                    font-size:22px; cursor:pointer; line-height:1; padding:4px 8px; border-radius:6px;"
+                onmouseover="this.style.color='var(--text-primary)'"
+                onmouseout="this.style.color='var(--text-muted)'">&times;</button>
         </div>
 
         <form method="post">
             {% csrf_token %}
 
-            <div style="margin-bottom:15px;">
-                <label>Tên danh mục</label>
+            <!-- Tên danh mục -->
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted);
+                              text-transform:uppercase; letter-spacing:0.8px; margin-bottom:7px;">
+                    Tên danh mục
+                </label>
                 {{ form.name }}
             </div>
 
-            <div style="margin-bottom:15px;">
-                <label>Loại</label>
+            <!-- Loại -->
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted);
+                              text-transform:uppercase; letter-spacing:0.8px; margin-bottom:7px;">
+                    Loại
+                </label>
                 {{ form.type }}
             </div>
 
-            <!-- Icon Picker -->
-            <div style="margin-bottom:15px;">
-                <label>Icon</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <div id="iconPreview" style="font-size: 32px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border-color); border-radius: 8px;">📋</div>
-                    <button type="button" onclick="openIconPicker()" style="flex: 1; padding: 10px; background: var(--button-bg, #3b82f6); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Chọn Icon</button>
+            <!-- Chọn icon -->
+            <div style="margin-bottom:20px;">
+                <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted);
+                              text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;">
+                    Icon
+                </label>
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+                    <div id="modalIconPreview"
+                        style="width:48px; height:48px; border-radius:50%; background:var(--accent-gradient);
+                                display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;">
+                        📋
+                    </div>
+                    <span style="font-size:13px; color:var(--text-muted);">Nhấn vào icon bên dưới để chọn</span>
                 </div>
-                {{ form.icon }}
+                <!-- Lưới icon -->
+                <div id="modalIconGrid" style="display:grid; grid-template-columns:repeat(8,1fr); gap:5px;
+                            max-height:180px; overflow-y:auto; padding:8px;
+                            background:var(--bg-primary); border:1px solid var(--border); border-radius:10px;">
+                </div>
+                <!-- Trường ẩn Django -->
+                <div style="display:none;">{{ form.icon }}</div>
             </div>
 
+            <!-- Lỗi -->
             {% if form.errors %}
-                <div style="background: #fee; border: 1px solid #f88; padding: 10px; border-radius: 4px; margin-bottom:15px;">
-                    <p style="color:#d00; margin:0; font-weight: bold;">Lỗi:</p>
-                    {{ form.errors }}
-                </div>
+            <div style="padding:10px 14px; background:rgba(194,120,120,0.12); border:1px solid var(--loss);
+                        border-radius:8px; margin-bottom:16px; font-size:13px; color:var(--loss);">
+                {{ form.errors }}
+            </div>
             {% endif %}
 
-            <button type="submit" class="action-btn primary" style="width:100%;">Thêm</button>
+            <!-- Nút -->
+            <button type="submit" class="btn primary" style="width:100%;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="16" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                </svg>
+                Thêm danh mục
+            </button>
         </form>
     </div>
 </div>
 
-<!-- Icon Picker Modal -->
-<div class="icon-picker-overlay" id="iconPickerOverlay" style="display:none;">
-    <div class="icon-picker-box" style="background: var(--card-bg); padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h3>Chọn Icon</h3>
-            <button onclick="closeIconPicker()" style="background:none; border:none; cursor:pointer; font-size:20px;">✕</button>
-        </div>
-
-        <input type="text" id="iconSearch" placeholder="Tìm kiếm icon..." style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
-
-        <div id="iconGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 10px;">
-            <!-- Icons will be loaded here -->
-        </div>
-    </div>
-</div>
-
-<!-- JS -->
 <script>
-    // Icon list - Emoji icons (works everywhere without CDN)
-    const iconList = [
+    // Danh sách icon emoji
+    const ICONS_DM = [
         '💰', '💳', '💵', '💴', '💶', '💷', '💸', '🏦', '🏧', '💹',
-        '🛒', '🛍️', '📦', '🚗', '🚕', '🚙', '✈️', '🏨', '🍔', '🍕',
-        '🍜', '☕', '🍎', '🍊', '🍌', '👕', '👗', '👔', '👠', '👞',
-        '📱', '💻', '⌚', '📷', '📹', '🎮', '🎨', '✏️', '📚', '📖',
-        '🏥', '⚕️', '💊', '🏋️', '🤸', '🚴', '⚽', '🏀', '🎾', '🏐',
-        '🎭', '🎪', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🎸', '🥁',
-        '🌍', '🌎', '🌏', '🗺️', '🏔️', '⛰️', '🏜️', '🏖️', '🏝️', '🌊',
-        '⭐', '🌟', '✨', '⚡', '🔥', '🌈', '🌤️', '⛅', '🌦️', '🌧️',
-        '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔',
-        '👨', '👩', '👦', '👧', '👨‍👩‍👧‍👦', '👪', '🐶', '🐱', '🐭', '🐹',
-        '📈', '📉', '💼', '📊', '📋', '📄', '📃', '📑', '🎯', '🎁',
-        '✅', '❌', '⚠️', '🔔', '🔕', '📢', '📣', '📯', '📞', '📧'
+        '🛒', '🛍️', '📦', '🚗', '🚕', '✈️', '🏨', '🍔', '🍕', '🍜',
+        '☕', '🍎', '🍊', '👕', '👗', '👔', '📱', '💻', '⌚', '📷',
+        '🎮', '🎨', '✏️', '📚', '📖', '🏥', '💊', '🏋️', '⚽', '🏀',
+        '🎭', '🎬', '🎤', '🎧', '🎵', '📈', '💼', '📊', '🎯', '🎁',
+        '🏠', '🔧', '⚡', '🌱', '🐾', '✅', '🔔', '👶', '🎓', '💡'
     ];
 
-    function openIconPicker() {
-        document.getElementById('iconPickerOverlay').style.display = 'flex';
-        renderIcons(iconList);
-    }
-
-    function closeIconPicker() {
-        document.getElementById('iconPickerOverlay').style.display = 'none';
-    }
-
-    function renderIcons(icons) {
-        const grid = document.getElementById('iconGrid');
+    function renderModalIcons(currentVal) {
+        const grid = document.getElementById('modalIconGrid');
+        const iconInput = document.querySelector('#modalOverlay [name="icon"]');
         grid.innerHTML = '';
-        
-        icons.forEach(icon => {
+        ICONS_DM.forEach(icon => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.innerHTML = icon;
+            btn.textContent = icon;
             btn.style.cssText = `
-                font-size: 32px;
-                padding: 10px;
-                border: 1px solid var(--border-color);
-                border-radius: 6px;
-                background: var(--input-bg, transparent);
-                cursor: pointer;
-                transition: all 0.2s;
+                width:36px; height:36px; border-radius:7px; font-size:17px; cursor:pointer;
+                display:flex; align-items:center; justify-content:center; transition:all 0.15s;
+                border: 1px solid ${icon === currentVal ? 'var(--accent-copper)' : 'var(--border)'};
+                background: ${icon === currentVal ? 'rgba(184,115,51,0.2)' : 'var(--bg-card)'};
             `;
-            btn.onmouseover = () => btn.style.transform = 'scale(1.1)';
-            btn.onmouseout = () => btn.style.transform = 'scale(1)';
-            btn.onclick = (e) => {
-                e.preventDefault();
-                selectIcon(icon);
+            btn.onclick = () => {
+                grid.querySelectorAll('button').forEach(b => {
+                    b.style.borderColor = 'var(--border)';
+                    b.style.background = 'var(--bg-card)';
+                });
+                btn.style.borderColor = 'var(--accent-copper)';
+                btn.style.background = 'rgba(184,115,51,0.2)';
+                document.getElementById('modalIconPreview').textContent = icon;
+                if (iconInput) iconInput.value = icon;
             };
             grid.appendChild(btn);
         });
     }
 
-    function selectIcon(icon) {
-        document.getElementById('id_icon').value = icon;
-        document.getElementById('iconPreview').textContent = icon;
-        closeIconPicker();
-    }
-
-    document.getElementById('iconSearch').addEventListener('input', (e) => {
-        const search = e.target.value.toLowerCase();
-        const filtered = iconList.filter(icon => icon.includes(search) || search === '');
-        renderIcons(filtered.length > 0 ? filtered : iconList);
-    });
-
-    // Close modal when clicking outside
-    document.getElementById('iconPickerOverlay').addEventListener('click', function(e) {
-        if (e.target === this) closeIconPicker();
-    });
-
     function openModal() {
-        document.getElementById('modalOverlay').style.display = 'flex';
+        const overlay = document.getElementById('modalOverlay');
+        overlay.style.display = 'flex';
+        const iconInput = document.querySelector('#modalOverlay [name="icon"]');
+        renderModalIcons(iconInput ? iconInput.value : '');
     }
-    
+
     function closeModal() {
         document.getElementById('modalOverlay').style.display = 'none';
     }
-    
-    // Bấm ra ngoài modal thì đóng
-    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+
+    document.getElementById('modalOverlay').addEventListener('click', function (e) {
         if (e.target === this) closeModal();
     });
-    
-    // Auto-open modal if there are form errors
-    {% if show_form %}
-        openModal();
+
+    // Tự mở modal nếu có lỗi form
+    {% if form.errors %}
+    document.addEventListener('DOMContentLoaded', openModal);
     {% endif %}
 
-    // Display selected icon on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const iconField = document.getElementById('id_icon');
-        if (iconField && iconField.value) {
-            document.getElementById('iconPreview').textContent = iconField.value;
+    // Hiển thị icon đã chọn khi load
+    document.addEventListener('DOMContentLoaded', function () {
+        const iconInput = document.querySelector('#modalOverlay [name="icon"]');
+        if (iconInput && iconInput.value) {
+            document.getElementById('modalIconPreview').textContent = iconInput.value;
         }
     });
 </script>
 
-<!-- CSS -->
+<!-- Style cho widget Django bên trong modal -->
 <style>
-    #modalOverlay {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
+    #modalOverlay input[type="text"],
+    #modalOverlay select,
+    #modalOverlay textarea {
+        width: 100%;
+        padding: 11px 14px;
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        font-size: 14px;
+        font-family: inherit;
+        color: var(--text-primary);
+        transition: border-color 0.2s;
+        display: block;
+        box-sizing: border-box;
     }
 
-    .icon-picker-overlay {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1001;
-    }
-
-    .icon-picker-box {
-        animation: slideUp 0.3s ease-out;
-    }
-
-    @keyframes slideUp {
-        from {
-            transform: translateY(20px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    #id_icon {
-        display: none;
+    #modalOverlay input[type="text"]:focus,
+    #modalOverlay select:focus {
+        outline: none;
+        border-color: var(--accent-copper);
+        box-shadow: 0 0 0 3px rgba(184, 115, 51, 0.12);
     }
 </style>

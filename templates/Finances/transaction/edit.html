@@ -1,34 +1,86 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Sửa giao dịch</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-            
-            body { font-family: sans-serif; padding: 20px; background: #f3f4f6; }
-            .form-container { background: white; padding: 30px; border-radius: 12px; max-width: 500px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-            .form-group { margin-bottom: 15px; }
-            .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-            input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-            .btn-submit { background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 10px; }
-            .btn-submit:hover { background: #059669; }
-        </style>
-    </head>
-    <body>
-        <div class="form-container">
-            <h2>Sửa giao dịch</h2>
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sửa giao dịch{% endblock %}
+
+{% block cssblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'homepage/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'homepage/css/pages.css' %}">
+
+    <style>
+        /* Widget Django dùng chung style */
+        .edit-form .form-group input,
+        .edit-form .form-group select,
+        .edit-form .form-group textarea {
+            width: 100%;
+            padding: 11px 14px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-primary);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        .edit-form .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .edit-form .form-group input:focus,
+        .edit-form .form-group select:focus,
+        .edit-form .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-copper);
+            box-shadow: 0 0 0 3px rgba(184, 115, 51, 0.12);
+        }
+
+        .edit-form .form-group input[type="file"] {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .edit-form .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 7px;
+        }
+
+        /* Tăng form-grid gap nhỏ lại cho cân */
+        .edit-form .form-grid {
+            gap: 16px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Sửa giao dịch</h1>
+        <p>Cập nhật thông tin giao dịch</p>
+    </div>
+
+    <div class="card edit-form" style="max-width: 680px;">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-grid">
                 <div class="form-group">
-                    <label>Chọn Ví</label>
+                    <label>Chọn ví</label>
                     {{ form.wallet }}
                 </div>
 
                 <div class="form-group">
-                    <label>Ngày/Tháng/Năm</label>
+                    <label>Ngày / Tháng / Năm</label>
                     {{ form.date }}
                 </div>
 
@@ -38,126 +90,50 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Loại</label>
+                    <label>Loại giao dịch</label>
                     {{ form.transaction_type }}
                 </div>
-                
-                <div class="form-group">
+
+                <div class="form-group full-width">
                     <label>Ghi chú</label>
                     {{ form.note }}
                 </div>
 
                 <div class="form-group">
-                    <label>Nhóm</label>
+                    <label>Danh mục</label>
                     {{ form.category }}
                 </div>
 
                 <div class="form-group">
-                    <label>Hình ảnh</label>
+                    <label>Hình ảnh biên lai</label>
                     {{ form.receipt }}
                 </div>
-
-                {% comment %} <div class="form-group">
-                    <label>Icon</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <div id="iconPreview" style="font-size: 32px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: 2px solid #ccc; border-radius: 8px;">
-                            📋
-                        </div>
-                        <button type="button" onclick="openIconPicker()" style="flex: 1; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
-                            Thay đổi Icon
-                        </button>
-                    </div>
-                    
-                    <div style="display: none;">
-                        {{ form.icon }}
-                    </div>
-                </div> {% endcomment %}
-
-                <button type="submit" class="btn-submit">Cập nhật</button>
-            </form>
-        </div>
-
-        <div id="iconPickerOverlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
-            <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h3>Chọn Icon</h3>
-                    <button type="button" onclick="closeIconPicker()" style="background:none; border:none; cursor:pointer; font-size:20px;">✕</button>
-                </div>
-                <input type="text" id="iconSearch" placeholder="Tìm kiếm icon..." style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
-                <div id="iconGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 10px;">
-                    </div>
             </div>
-        </div>
 
-        <script>
-            const iconList = [
-                '💰', '💳', '💵', '💴', '💶', '💷', '💸', '🏦', '🏧', '💹',
-                '🛒', '🛍️', '📦', '🚗', '🚕', '🚙', '✈️', '🏨', '🍔', '🍕',
-                '🍜', '☕', '🍎', '🍊', '🍌', '👕', '👗', '👔', '👠', '👞',
-                '📱', '💻', '⌚', '📷', '📹', '🎮', '🎨', '✏️', '📚', '📖',
-                '🏥', '⚕️', '💊', '🏋️', '🤸', '🚴', '⚽', '🏀', '🎾', '🏐',
-                '🎭', '🎪', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🎸', '🥁',
-                '🌍', '🌎', '🌏', '🗺️', '🏔️', '⛰️', '🏜️', '🏖️', '🏝️', '🌊',
-                '⭐', '🌟', '✨', '⚡', '🔥', '🌈', '🌤️', '⛅', '🌦️', '🌧️',
-                '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔',
-                '👨', '👩', '👦', '👧', '👨‍👩‍👧‍👦', '👪', '🐶', '🐱', '🐭', '🐹',
-                '📈', '📉', '💼', '📊', '📋', '📄', '📃', '📑', '🎯', '🎁',
-                '✅', '❌', '⚠️', '🔔', '🔕', '📢', '📣', '📯', '📞', '📧'
-            ];
+            <!-- Nút hành động -->
+            <div style="display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
+                <button type="submit" class="btn primary" style="flex: 1;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Lưu thay đổi
+                </button>
+                <a href="{% url 'finances:transaction' %}" style="flex: 1;">
+                    <button type="button" class="btn" style="width: 100%;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"/>
+                            <polyline points="12 19 5 12 12 5"/>
+                        </svg>
+                        Quay lại
+                    </button>
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
 
-            // Khi vừa vào trang web, tự động lấy icon cũ từ database hiển thị lên Preview
-            document.addEventListener('DOMContentLoaded', function() {
-                // Django mặc định đặt ID cho các trường form là id_tên_trường
-                const iconInput = document.getElementById('id_icon'); 
-                if (iconInput && iconInput.value) {
-                    document.getElementById('iconPreview').textContent = iconInput.value;
-                }
-            });
-
-            function openIconPicker() {
-                document.getElementById('iconPickerOverlay').style.display = 'flex';
-                renderIcons(iconList);
-            }
-
-            function closeIconPicker() {
-                document.getElementById('iconPickerOverlay').style.display = 'none';
-            }
-
-            function renderIcons(icons) {
-                const grid = document.getElementById('iconGrid');
-                grid.innerHTML = '';
-                
-                icons.forEach(icon => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button'; // Rất quan trọng để không submit form
-                    btn.innerHTML = icon;
-                    btn.style.cssText = `font-size: 32px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background: transparent; cursor: pointer; transition: all 0.2s;`;
-                    btn.onmouseover = () => btn.style.background = '#f3f4f6';
-                    btn.onmouseout = () => btn.style.background = 'transparent';
-                    btn.onclick = () => selectIcon(icon);
-                    grid.appendChild(btn);
-                });
-            }
-
-            function selectIcon(icon) {
-                // Điền icon được chọn vào khung nhập ẩn của Django
-                document.getElementById('id_icon').value = icon;
-                // Cập nhật lại khung hiển thị
-                document.getElementById('iconPreview').textContent = icon;
-                closeIconPicker();
-            }
-
-            // Tính năng tìm kiếm
-            document.getElementById('iconSearch').addEventListener('input', (e) => {
-                const search = e.target.value.toLowerCase();
-                const filtered = iconList.filter(icon => icon.includes(search) || search === '');
-                renderIcons(filtered.length > 0 ? filtered : iconList);
-            });
-
-            // Bấm ra ngoài vùng tối sẽ đóng popup
-            document.getElementById('iconPickerOverlay').addEventListener('click', function(e) {
-                if (e.target === this) closeIconPicker();
-            });
-        </script>
-    </body>
-</html>
+{% block jsblock %}
+    <script src="{% static 'homepage/js/script.js' %}"></script>
+{% endblock %}

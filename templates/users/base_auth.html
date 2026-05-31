@@ -1,31 +1,228 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="vi" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Đăng nhập - Quản lý Chi tiêu{% endblock %}</title>
 
-    <title>{% block title %} TemplateMo - Free CSS Website Templates {% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'homepage/css/style.css' %}">
+
+    <style>
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Instrument Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .auth-card {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+
+        .auth-logo {
+            text-align: center;
+            font-size: 40px;
+            margin-bottom: 16px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .auth-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: var(--bg-base);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+        }
+
+        .auth-tab.active {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .cat-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .cat-form label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .cat-form input {
+            width: 100%;
+            padding: 12px 14px;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        .cat-form input:focus {
+            outline: none;
+            border-color: var(--accent-copper);
+            box-shadow: 0 0 0 3px rgba(184, 115, 51, 0.12);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(184,115,51,0.3);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-messages {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            text-align: center;
+        }
+        
+        .form-messages.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+    </style>
+    
+    {% block cssblock %}{% endblock %}
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card cat-form">
+            <div class="auth-logo">💰</div>
+            <div class="auth-header">
+                <h1>Chào mừng bạn</h1>
+                <p>Đăng nhập hoặc tạo tài khoản để quản lý tài chính</p>
+            </div>
+            
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+
+    {% block jsblock %}{% endblock %}
 
     <script>
-        // Load theme immediately to prevent flash
-        (function() {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.auth-tab');
+            const forms = document.querySelectorAll('.auth-form');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.getAttribute('data-form');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    forms.forEach(f => f.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(target + 'Form').classList.add('active');
+                });
+            });
+            
+            // Handle switches from links
+            const switchToRegister = document.getElementById('switchToRegister');
+            const switchToLogin = document.getElementById('switchToLogin');
+            
+            if (switchToRegister) {
+                switchToRegister.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelector('[data-form="register"]').click();
+                });
+            }
+            
+            if (switchToLogin) {
+                switchToLogin.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelector('[data-form="login"]').click();
+                });
+            }
+        });
     </script>
-
-    {% block cssblock %}
-    {% endblock %}
-
-</head>
-<body class="auth-page">
-    {% include "users/auth_branding.html" %}
-
-    {% include "users/auth_form.html" %}
-
-
-    {% block jsblock %}
-    {% endblock %}
 </body>
 </html>

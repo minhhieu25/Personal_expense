@@ -1,153 +1,132 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Thêm ngân sách</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-            
-            body { font-family: sans-serif; padding: 20px; background: #f3f4f6; }
-            .form-container { background: white; padding: 30px; border-radius: 12px; max-width: 500px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-            .form-group { margin-bottom: 15px; }
-            .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-            input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-            .btn-submit { background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 10px; }
-            .btn-submit:hover { background: #059669; }
-        </style>
-    </head>
-    <body>
-        <div class="form-container">
-            <h2>Thêm ngân sách</h2>
-            <form method="post">
-                {% csrf_token %}
-                
-                <div class="form-group">
-                    <label>Chọn ví</label>
-                    {{ form.wallet }}
-                </div>
-                
-                <div class="form-group">
-                    <label>Số tiền</label>
-                    {{ form.amount }}
-                </div>
+{% extends "base.html" %}
+{% load static %}
 
-                <div class="form-group">
-                    <label>Chọn danh mục</label>
-                    {{ form.category }}
-                </div>
+{% block title %}Thêm ngân sách{% endblock %}
 
-                <div class="form-group">
-                    <label>Ngày bắt đầu</label>
-                    {{ form.start_date }}
-                </div>
+{% block cssblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'homepage/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'homepage/css/pages.css' %}">
 
-                <div class="form-group">
-                    <label>Lặp lại</label>
-                    {{ form.repeat }}
-                </div>
+    <style>
+        .cat-form .form-group input,
+        .cat-form .form-group select {
+            width: 100%;
+            padding: 11px 14px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            display: block;
+            box-sizing: border-box;
+        }
 
-                {% comment %} <div class="form-group">
-                    <label>Icon</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <div id="iconPreview" style="font-size: 32px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: 2px solid #ccc; border-radius: 8px;">
-                            💳
-                        </div>
-                        <button type="button" onclick="openIconPicker()" style="flex: 1; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
-                            Chọn Icon
-                        </button>
-                    </div>
-                    
-                    <div style="display: none;">
-                        {{ form.icon }}
-                    </div>
-                </div> {% endcomment %}
+        .cat-form .form-group input:focus,
+        .cat-form .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-copper);
+            box-shadow: 0 0 0 3px rgba(184, 115, 51, 0.12);
+        }
 
-                <button type="submit" class="btn-submit">Thêm ngân sách</button>
-            </form>
+        .cat-form .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .form-errors {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Thêm ngân sách</h1>
+    <p>Thiết lập giới hạn chi tiêu để quản lý tài chính tốt hơn</p>
+</div>
+
+<div class="card cat-form" style="max-width: 500px;">
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="form-errors">
+            <strong style="display:block; margin-bottom:4px;">Lỗi:</strong>
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label>Chọn ví áp dụng</label>
+            {{ form.wallet }}
+            {% if form.wallet.errors %}
+            <div class="form-errors" style="margin-top:6px; padding:8px; margin-bottom:0;">{{ form.wallet.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label>Số tiền giới hạn</label>
+            {{ form.amount }}
+            {% if form.amount.errors %}
+            <div class="form-errors" style="margin-top:6px; padding:8px; margin-bottom:0;">{{ form.amount.errors }}</div>
+            {% endif %}
         </div>
 
-        <div id="iconPickerOverlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
-            <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h3>Chọn Icon</h3>
-                    <button type="button" onclick="closeIconPicker()" style="background:none; border:none; cursor:pointer; font-size:20px;">✕</button>
-                </div>
-                <input type="text" id="iconSearch" placeholder="Tìm kiếm icon..." style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
-                <div id="iconGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 10px;">
-                    </div>
-            </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label>Danh mục chi tiêu</label>
+            {{ form.category }}
+            {% if form.category.errors %}
+            <div class="form-errors" style="margin-top:6px; padding:8px; margin-bottom:0;">{{ form.category.errors }}</div>
+            {% endif %}
         </div>
 
-        <script>
-            const iconList = [
-                '💰', '💳', '💵', '💴', '💶', '💷', '💸', '🏦', '🏧', '💹',
-                '🛒', '🛍️', '📦', '🚗', '🚕', '🚙', '✈️', '🏨', '🍔', '🍕',
-                '🍜', '☕', '🍎', '🍊', '🍌', '👕', '👗', '👔', '👠', '👞',
-                '📱', '💻', '⌚', '📷', '📹', '🎮', '🎨', '✏️', '📚', '📖',
-                '🏥', '⚕️', '💊', '🏋️', '🤸', '🚴', '⚽', '🏀', '🎾', '🏐',
-                '🎭', '🎪', '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🎸', '🥁',
-                '🌍', '🌎', '🌏', '🗺️', '🏔️', '⛰️', '🏜️', '🏖️', '🏝️', '🌊',
-                '⭐', '🌟', '✨', '⚡', '🔥', '🌈', '🌤️', '⛅', '🌦️', '🌧️',
-                '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔',
-                '👨', '👩', '👦', '👧', '👨‍👩‍👧‍👦', '👪', '🐶', '🐱', '🐭', '🐹',
-                '📈', '📉', '💼', '📊', '📋', '📄', '📃', '📑', '🎯', '🎁',
-                '✅', '❌', '⚠️', '🔔', '🔕', '📢', '📣', '📯', '📞', '📧'
-            ];
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label>Ngày bắt đầu</label>
+            {{ form.start_date }}
+            {% if form.start_date.errors %}
+            <div class="form-errors" style="margin-top:6px; padding:8px; margin-bottom:0;">{{ form.start_date.errors }}</div>
+            {% endif %}
+        </div>
 
-            // Khi vừa vào trang web, tự động lấy icon cũ từ database hiển thị lên Preview
-            document.addEventListener('DOMContentLoaded', function() {
-                // Django mặc định đặt ID cho các trường form là id_tên_trường
-                const iconInput = document.getElementById('id_icon'); 
-                if (iconInput && iconInput.value) {
-                    document.getElementById('iconPreview').textContent = iconInput.value;
-                }
-            });
+        <div class="form-group" style="margin-bottom: 28px;">
+            <label>Chu kỳ lặp lại</label>
+            {{ form.repeat }}
+            {% if form.repeat.errors %}
+            <div class="form-errors" style="margin-top:6px; padding:8px; margin-bottom:0;">{{ form.repeat.errors }}</div>
+            {% endif %}
+        </div>
 
-            function openIconPicker() {
-                document.getElementById('iconPickerOverlay').style.display = 'flex';
-                renderIcons(iconList);
-            }
+        <div style="display:flex; gap:12px; border-top:1px solid var(--border); padding-top:16px;">
+            <button type="submit" class="btn primary" style="flex:1;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                Thêm ngân sách
+            </button>
+            <a href="{% url 'finances:budget' %}" style="flex:1;">
+                <button type="button" class="btn" style="width:100%;">Quay lại</button>
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
 
-            function closeIconPicker() {
-                document.getElementById('iconPickerOverlay').style.display = 'none';
-            }
-
-            function renderIcons(icons) {
-                const grid = document.getElementById('iconGrid');
-                grid.innerHTML = '';
-                
-                icons.forEach(icon => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button'; // Rất quan trọng để không submit form
-                    btn.innerHTML = icon;
-                    btn.style.cssText = `font-size: 32px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background: transparent; cursor: pointer; transition: all 0.2s;`;
-                    btn.onmouseover = () => btn.style.background = '#f3f4f6';
-                    btn.onmouseout = () => btn.style.background = 'transparent';
-                    btn.onclick = () => selectIcon(icon);
-                    grid.appendChild(btn);
-                });
-            }
-
-            function selectIcon(icon) {
-                // Điền icon được chọn vào khung nhập ẩn của Django
-                document.getElementById('id_icon').value = icon;
-                // Cập nhật lại khung hiển thị
-                document.getElementById('iconPreview').textContent = icon;
-                closeIconPicker();
-            }
-
-            // Tính năng tìm kiếm
-            document.getElementById('iconSearch').addEventListener('input', (e) => {
-                const search = e.target.value.toLowerCase();
-                const filtered = iconList.filter(icon => icon.includes(search) || search === '');
-                renderIcons(filtered.length > 0 ? filtered : iconList);
-            });
-
-            // Bấm ra ngoài vùng tối sẽ đóng popup
-            document.getElementById('iconPickerOverlay').addEventListener('click', function(e) {
-                if (e.target === this) closeIconPicker();
-            });
-        </script>
-    </body>
-</html>
+{% block jsblock %}
+    <script src="{% static 'homepage/js/script.js' %}"></script>
+{% endblock %}

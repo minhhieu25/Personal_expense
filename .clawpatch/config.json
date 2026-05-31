@@ -14,9 +14,9 @@
     ".clawpatch/**"
   ],
   "provider": {
-  "name": "codex",
-  "model": null,
-  "reasoningEffort": null
+    "name": "codex",
+    "model": null,
+    "reasoningEffort": null
   },
   "commands": {
     "typecheck": null,

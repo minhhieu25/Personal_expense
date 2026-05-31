@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from .models import Category, Wallet, Transaction, Budget
+from .models import Category, Wallet, Transaction, Budget, ReportService
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CategoryForm, WalletForm, TransactionForm, BudgetForm
 from django.db.models import Sum
@@ -8,12 +8,25 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 import calendar
 
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+
 
 # danh mục list
 class CategoryView(LoginRequiredMixin, View):
     def get(self, request):
         categories = Category.objects.filter(user=request.user)
         form = CategoryForm()  # Initialize empty form for GET request
+
+        # lấy tham số 'type' từ url
+        filter_type = request.GET.get('type')
+
+        # nếu chọn loại "Thu nhập"
+        if filter_type == "Thu nhập":
+            categories = categories.filter(type=filter_type)
+        elif filter_type == "Chi tiêu":
+            categories = categories.filter(type=filter_type)
+        
         return render(request, "Finances/category/list.html", {
             'categories': categories,
             'form': form,
@@ -52,7 +65,7 @@ class CategoryEditView(View):
             form.save()
             return redirect('finances:categories')
         
-# xóa dnah mục
+# xóa danh mục
 class CategoryDeleteView(View):
     def post(self, request, pk):
         category = get_object_or_404(Category, pk=pk, user=request.user)
@@ -65,15 +78,13 @@ class WalletView(LoginRequiredMixin, View):
         wallet = Wallet.objects.filter(user=request.user)
 
         # tính tổng số dư của tất cả các ví
-        total = 0
+        total_wallet = 0
         for i in wallet:
-            total += i.balance
-        # xử lý hiển thị dấu phẩy cho tổng số dư
-        total_formatted = f"{total:,.0f} VNĐ"
+            total_wallet += i.balance
 
         return render(request, "Finances/wallet/list.html", {
             'wallet': wallet,
-            'total_formatted': total_formatted
+            'total_wallet': total_wallet
         })
 
 # thêm ví 
@@ -95,7 +106,7 @@ class WalletAddView(LoginRequiredMixin, View):
         return render(request, "Finances/wallet/add.html", {'form': form})
     
 # sửa ví
-class WalletEditView(View):
+class WalletEditView(LoginRequiredMixin, View):
     def get(self, request, pk):
         wallet = get_object_or_404(Wallet, pk=pk, user=request.user)
         form = WalletForm(instance=wallet)
@@ -112,7 +123,7 @@ class WalletEditView(View):
             return redirect('finances:wallet')
         
 # xóa ví
-class WalletDeleteView(View):
+class WalletDeleteView(LoginRequiredMixin, View):
     def post(self, request, pk):
         wallet = get_object_or_404(Wallet, pk=pk, user=request.user)
         wallet.delete()
@@ -124,7 +135,19 @@ class TransactionView(LoginRequiredMixin, View):
         form = TransactionForm()
         form.fields['category'].queryset = Category.objects.filter(user=request.user)
         form.fields['wallet'].queryset = Wallet.objects.filter(user=request.user)
+
+        #lay tat ca giao dich cua user hien tai
         transaction = Transaction.objects.filter(user=request.user)
+
+        # lấy tham số 'type' từ url
+        filter_type = request.GET.get('type')
+
+        #nếu chọn loại "Thu nhập"
+        if filter_type == "Thu nhập":
+            transaction = transaction.filter(transaction_type=filter_type)
+        #nếu chọn loại "Chi phí"
+        elif filter_type == "Chi tiêu":
+            transaction = transaction.filter(transaction_type=filter_type)
 
         return render(request, "Finances/transaction/list.html", {
             'form': form,
@@ -235,13 +258,13 @@ class BudgetDeleteView(View):
         return redirect("finances:budget")
 
 # lịch
-class CalenderView(View):
+class CalenderView(LoginRequiredMixin, View):
     def get(self, request):
         # lấy filter từ url
         view_type = request.GET.get('view', 'month')
         date_str = request.GET.get('date', None)
+        wallet_id = request.GET.get('wallet', None)
 
-        # ngày được chọn là hôm nay
         if date_str:
             selected_date = datetime.strptime(date_str, '%Y-%m-%d').date()
         else:
@@ -250,12 +273,21 @@ class CalenderView(View):
         # tạo lịch tháng
         cal = calendar.monthcalendar(selected_date.year, selected_date.month)
 
+        # lấy danh sách ví
+        wallets = Wallet.objects.filter(user=request.user)
+        # lấy ví được chọn
+        selected_wallet = None
+        if wallet_id:
+            selected_wallet = wallets.filter(pk=wallet_id).first()
+
         # lấy tất cả transaction trong tháng
         transactions = Transaction.objects.filter(
             user=request.user,
             date__month = selected_date.month,
-            date__year = selected_date.year
+            date__year = selected_date.year,
         )
+        if selected_wallet:
+            transactions = transactions.filter(wallet=selected_wallet)
 
         # group transaction theo ngay hien thi tren lich
         transaction_by_date = {}
@@ -284,7 +316,6 @@ class CalenderView(View):
         total_expense = transactions.filter(transaction_type='Chi tiêu').aggregate(Sum('amount'))['amount__sum'] or 0
         total_difference = total_income - total_expense
         
-
         # Ngày được chọn trên lịch
         selected_day = request.GET.get('selected_day', None)
         if selected_day:
@@ -301,6 +332,8 @@ class CalenderView(View):
             )
         
         return render(request, "Finances/calendar/calendar.html", {
+                'wallets': wallets,
+                'selected_wallet': selected_wallet,
                 'cal': cal,
                 'selected_date': selected_date,
                 'transaction_by_date': transaction_by_date,
@@ -315,13 +348,41 @@ class CalenderView(View):
         })
 
 
-# setting
-class SettingView(View):
-    def get(self, request):
-        return render(request, "Finances/settings.html")
+# # setting
+# class SettingView(View):
+#     def get(self, request):
+#         return render(request, "Finances/settings.html")
     
     
 # bao cao
-class ReportView(View):
+class ReportView(LoginRequiredMixin, View):
     def get(self, request):
-        return render(request, "Finances/report.html")
+        # lấy tháng/năm từ url, mặc định tháng hiện tại
+        month = int(request.GET.get('month', timezone.now().month))
+        year = int(request.GET.get('year', timezone.now().year))
+        wallet_id = request.GET.get('wallet', None)
+
+        # lấy danh sách ví 
+        wallets = Wallet.objects.filter(user=request.user)
+
+        # lấy ví được chọn
+        selected_wallet = None
+        if wallet_id:
+            selected_wallet = wallets.filter(pk=wallet_id).first()
+
+        report = ReportService(request.user, month, year, wallet=selected_wallet)
+
+        daily = list(report.daily_summary())
+
+        return render(request, "Finances/report/report.html", {
+            'month': month,
+            'year': year,
+            'wallets': wallets,
+            'selected_wallet': selected_wallet,
+            'total_income': report.total_income(),
+            'total_expense': report.total_expense(),
+            'total_saving': report.total_saving(),
+            'top_categories': report.top_expense_categories(),
+            'comparison': report.compare_with_last_month(),  
+            'daily_summary': json.dumps(daily, cls=DjangoJSONEncoder),
+        })

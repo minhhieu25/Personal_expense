@@ -1,8 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
-from .forms import LoginForm, RegisterFrom
+from .forms import *
 from .models import CustomUser
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 # Create your views here.
 class AuthView(View):
     def get(self, request):
@@ -62,7 +64,46 @@ class LogoutView(View):
         logout(request)
         return redirect("users:login")
     
+class CustomUserView(View):
+    def get(self, request):
+        customuser = CustomUser.objects.filter(id=request.user.id)
+        return render(request, "users/customuser.html", { 'customuser': customuser,})
 
+
+class CustomUserEditView(View):
+    def get(self, request):
+        form = CustomUserForm(instance=request.user)
+        return render(request, "users/edit_user.html", {'form': form,})
+
+    def post(self, request):
+        form = CustomUserForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect("users:customuser")
         
+        return render(request, 'users/edit_user.html', {'form': form})
+    
+
+class PasswordChangeView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = PasswordChangeForm()
+        
+        return render(request, "Users/password_change.html", {'form': form})
+
+    def post(self, request):
+        form = PasswordChangeForm(request.POST)
+        if form.is_valid():
+            user = request.user
+            # Kiểm tra mật khẩu hiện tại
+            if not user.check_password(form.cleaned_data['old_password']):
+                form.add_error('old_password', 'Mật khẩu hiện tại không đúng!')
+                return render(request, "Users/password_change.html", {'form': form})
+            # Đổi mật khẩu
+            user.set_password(form.cleaned_data['new_password'])
+            user.save()
+            # Đăng nhập lại vì session bị reset sau khi đổi mật khẩu
+            login(request, user)
+            return redirect('users:customuser')
+        return render(request, "users/password_change.html", {'form': form})
 
         

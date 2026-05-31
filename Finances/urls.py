@@ -28,8 +28,8 @@ urlpatterns = [
     # lịch
     path('calendar/', CalenderView.as_view(), name="calendar"),
 
-    # setting
-    path('settings/', SettingView.as_view(), name="settings"),
+    # # setting
+    # path('settings/', SettingView.as_view(), name="settings"),
 
     # bao cao
     path('report/', ReportView.as_view(), name="report"),

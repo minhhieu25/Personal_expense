@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-592143abcc-b136_608d9c8784",
+  "featureId": "feat_library_592143abcc",
+  "title": "Wallet names are globally unique across all users",
+  "category": "bug",
+  "severity": "medium",
+  "confidence": "medium",
+  "triage": "risk",
+  "evidence": [
+    {
+      "path": "Finances/models.py",
+      "startLine": 23,
+      "endLine": 32,
+      "symbol": "Wallet.Meta",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 63,
+      "endLine": 76,
+      "symbol": "WalletView.get",
+      "quote": null
+    },
+    {
+      "path": "Finances/views.py",
+      "startLine": 85,
+      "endLine": 92,
+      "symbol": "WalletAddView.post",
+      "quote": null
+    }
+  ],
+  "reasoning": "Wallet is a user-owned model and the wallet views consistently scope wallet operations to request.user, but the model uniqueness constraint only includes name. That means one user's common wallet name such as 'Cash' or 'Bank' can prevent every other user from creating a wallet with the same name, which breaks per-user isolation and can make normal account setup fail with an IntegrityError or form validation error.",
+  "reproduction": null,
+  "recommendation": "Change the uniqueness constraint to include both user and name, preferably with a UniqueConstraint(fields=['user', 'name'], name='unique_wallet_name_per_user'), and add a migration.",
+  "whyTestsDoNotAlreadyCoverThis": "Finances/tests.py has no multi-user model or form tests for wallet creation.",
+  "suggestedRegressionTest": "Create two users and assert both can create a wallet with the same name, while a single user cannot create duplicate wallet names.",
+  "minimumFixScope": "Wallet.Meta uniqueness definition and the corresponding migration.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-592143abcc_b136eba2a2",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260524T150630-f39250",
+  "createdAt": "2026-05-24T15:07:27.358Z",
+  "updatedAt": "2026-05-24T15:07:27.358Z"
+}
