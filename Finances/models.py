@@ -266,7 +266,7 @@ class Budget(models.Model):
         }
 
 # tính toán cho biểu đồ
-class ReportService:
+class ReportService: 
     def __init__(self, user, month, year, wallet=None):
         self.user = user
         self.month = month
