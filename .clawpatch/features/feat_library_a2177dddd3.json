@@ -51,11 +51,24 @@
     "source-group"
   ],
   "trustBoundaries": [],
-  "status": "pending",
+  "status": "needs-fix",
   "lock": null,
-  "findingIds": [],
+  "findingIds": [
+    "fnd_sig-feat-library-a2177dddd3-2d98_574c118397",
+    "fnd_sig-feat-library-a2177dddd3-76b2_2d26a5384f"
+  ],
   "patchAttemptIds": [],
-  "analysisHistory": [],
+  "analysisHistory": [
+    {
+      "runId": "20260602T061120-63cf78",
+      "kind": "review",
+      "summary": "2 finding(s); prompt=13988 bytes; approxTokens=3496; includedFiles=7; omittedFiles=0",
+      "provider": "codex",
+      "model": null,
+      "reasoningEffort": null,
+      "createdAt": "2026-06-02T06:12:08.194Z"
+    }
+  ],
   "createdAt": "2026-05-24T15:06:14.180Z",
-  "updatedAt": "2026-05-24T15:06:14.180Z"
+  "updatedAt": "2026-06-02T06:12:08.194Z"
 }

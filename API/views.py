@@ -70,7 +70,7 @@ class WalletDetailAPIView(APIView):
         wallet = get_object_or_404(Wallet, pk=pk, user=request.user)
         my_data = WalletSerializer(wallet, data=request.data)
         if not my_data.is_valid():
-            return Response(my_data.data, status=status.HTTP_400_BAD_REQUEST)
+            return Response(my_data.errors, status=status.HTTP_400_BAD_REQUEST)
         my_data.save(user=request.user)
         return Response(my_data.data, status=status.HTTP_200_OK)
     

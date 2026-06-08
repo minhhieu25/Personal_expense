@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.db.models import Sum
 import calendar
+from django.db import transaction
 
 # Create your models here.
 class Category(models.Model):
@@ -63,7 +64,11 @@ class Transaction(models.Model):
     def amount_vnd(self):
         return f"{self.amount:,.0f}"
 
+    @transaction.atomic # phải thành công tất cả đã mới lưu
     def save(self, *args, **kwargs):
+        # khóa ví: lấy ví từ db và khóa chặt, không ai được chạm vào lúc này(anh A tính tiền xong đã, anh B đứng đợi)
+        wallet = Wallet.objects.select_for_update().get(pk=self.wallet.pk)
+        
         if self.pk:  # Sửa giao dịch
             old = Transaction.objects.get(pk=self.pk)
             
@@ -73,51 +78,55 @@ class Transaction(models.Model):
             if wallet_changed:
                 # Nếu ví thay đổi: hoàn lại ví cũ, cộng ví mới
                 if old.transaction_type == "Thu nhập":
-                    old.wallet.balance -= old.amount
+                    wallet.balance -= old.amount
                 else:
-                    old.wallet.balance += old.amount
-                old.wallet.save()
+                    wallet.balance += old.amount
+                wallet.save()
                 
                 # Cộng vào ví mới
                 if self.transaction_type == "Thu nhập":
-                    self.wallet.balance += self.amount
+                    wallet.balance += self.amount
                 else:
-                    self.wallet.balance -= self.amount
-                self.wallet.save()
+                    wallet.balance -= self.amount
+                wallet.save()
             else:
                 # Ví không thay đổi: cơ sở dữ liệu vẫn là balance cũ
                 # Phải hoàn lại tiền cũ trước, rồi cộng tiền mới
                 
                 # Hoàn lại giao dịch cũ
                 if old.transaction_type == "Thu nhập":
-                    self.wallet.balance -= old.amount
+                    wallet.balance -= old.amount
                 else:
-                    self.wallet.balance += old.amount
+                    wallet.balance += old.amount
                 
                 # Cộng giao dịch mới
                 if self.transaction_type == "Thu nhập":
-                    self.wallet.balance += self.amount
+                    wallet.balance += self.amount
                 else:
-                    self.wallet.balance -= self.amount
+                    wallet.balance -= self.amount
                 
-                self.wallet.save()
+                wallet.save()
         else:  # Giao dịch mới
             if self.transaction_type == "Thu nhập":
-                self.wallet.balance += self.amount
+                wallet.balance += self.amount
             else:
-                self.wallet.balance -= self.amount
-            self.wallet.save()
+                wallet.balance -= self.amount
+            wallet.save()
         
         super().save(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
+    @transaction.atomic 
+    def delete(self, *args, **kwargs):  
+        # khóa ví
+        wallet = Wallet.objects.select_for_update().get(pk=self.wallet.pk)
+        
         # khi xóa giao dịch thì hoàn lại số dư
         if self.transaction_type == "Thu nhập":
-            self.wallet.balance -= self.amount
+            wallet.balance -= self.amount
         elif self.transaction_type == "Chi tiêu":
-            self.wallet.balance += self.amount
+            wallet.balance += self.amount
 
-        self.wallet.save()
+        wallet.save()
         super().delete(*args, **kwargs) 
 
     

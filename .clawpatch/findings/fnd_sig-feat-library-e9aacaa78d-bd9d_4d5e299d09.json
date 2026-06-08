@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-e9aacaa78d-bd9d_4d5e299d09",
+  "featureId": "feat_library_e9aacaa78d",
+  "title": "Currency formatter can display incorrect amounts by converting money values through float",
+  "category": "bug",
+  "severity": "low",
+  "confidence": "medium",
+  "triage": "risk",
+  "evidence": [
+    {
+      "path": "Finances/templatetags/finances_filters.py",
+      "startLine": 10,
+      "endLine": 14,
+      "symbol": "format_currency",
+      "quote": null
+    }
+  ],
+  "reasoning": "The filter converts every value with float(value) before formatting. For Decimal values or large integer balances, binary floating-point conversion can lose precision before the display string is produced, so a stored amount can be rendered as a different rounded whole-dong value. This is especially relevant for a finance template filter because template output may be used to verify balances or transaction totals.",
+  "reproduction": "Pass Decimal('9007199254740993') or the string '9007199254740993' to format_currency; converting through float cannot represent that value exactly before formatting.",
+  "recommendation": "Format Decimal or integer values without converting through float. For example, convert with Decimal(str(value)) and quantize/format the Decimal, while preserving the existing fallback for invalid inputs.",
+  "whyTestsDoNotAlreadyCoverThis": "No tests are listed for this source group, and the excerpt contains no coverage for large numeric strings or Decimal monetary values.",
+  "suggestedRegressionTest": "Add tests for format_currency with Decimal and large integer/string monetary values that assert the rendered amount matches the exact original value after whole-unit formatting.",
+  "minimumFixScope": "Update format_currency to avoid float conversion and add focused tests for exact currency formatting.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-e9aacaa78d_bd9d92829b",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260602T064541-f2801f",
+  "createdAt": "2026-06-02T06:46:06.865Z",
+  "updatedAt": "2026-06-02T06:46:06.865Z"
+}

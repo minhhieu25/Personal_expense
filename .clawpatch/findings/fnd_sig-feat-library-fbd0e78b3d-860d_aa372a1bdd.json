@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-fbd0e78b3d-860d_aa372a1bdd",
+  "featureId": "feat_library_fbd0e78b3d",
+  "title": "Wallet names are globally unique instead of scoped per user",
+  "category": "api-contract",
+  "severity": "medium",
+  "confidence": "high",
+  "triage": "contract-mismatch",
+  "evidence": [
+    {
+      "path": "Finances/migrations/0002_initial.py",
+      "startLine": 43,
+      "endLine": 65,
+      "symbol": null,
+      "quote": null
+    }
+  ],
+  "reasoning": "The wallet model has a required user ForeignKey, but the unique constraint is only on name. That means once any user creates a wallet named, for example, 'Cash', every other user is blocked from using the same wallet name, which violates the apparent per-user ownership model used by related_name='wallets' and the category/budget uniqueness rules that include user.",
+  "reproduction": "Create two users, create Wallet(name='Cash', user=user1), then try to create Wallet(name='Cash', user=user2). The second insert fails with a uniqueness violation even though the wallets belong to different users.",
+  "recommendation": "Change the wallet uniqueness constraint to include user, for example unique_together={('name', 'user')}, or add an equivalent UniqueConstraint scoped by user.",
+  "whyTestsDoNotAlreadyCoverThis": "No tests were included for this feature, so there is no evidence that multi-user wallet naming behavior is covered.",
+  "suggestedRegressionTest": "Add a migration/model test or Django TestCase that creates two different users and verifies each can create a wallet with the same name, while duplicate wallet names for the same user are still rejected.",
+  "minimumFixScope": "Add a new migration altering the Wallet uniqueness constraint from ('name',) to ('name', 'user').",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-fbd0e78b3d_860d825496",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260602T064541-f2801f",
+  "createdAt": "2026-06-02T06:46:20.513Z",
+  "updatedAt": "2026-06-02T06:46:20.513Z"
+}

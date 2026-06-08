@@ -39,11 +39,23 @@
     "source-group"
   ],
   "trustBoundaries": [],
-  "status": "pending",
+  "status": "needs-fix",
   "lock": null,
-  "findingIds": [],
+  "findingIds": [
+    "fnd_sig-feat-library-fbd0e78b3d-860d_aa372a1bdd"
+  ],
   "patchAttemptIds": [],
-  "analysisHistory": [],
+  "analysisHistory": [
+    {
+      "runId": "20260602T064541-f2801f",
+      "kind": "review",
+      "summary": "1 finding(s); prompt=12922 bytes; approxTokens=3224; includedFiles=4; omittedFiles=0",
+      "provider": "codex",
+      "model": null,
+      "reasoningEffort": null,
+      "createdAt": "2026-06-02T06:46:20.515Z"
+    }
+  ],
   "createdAt": "2026-05-24T15:06:14.180Z",
-  "updatedAt": "2026-05-24T15:06:14.180Z"
+  "updatedAt": "2026-06-02T06:46:20.515Z"
 }

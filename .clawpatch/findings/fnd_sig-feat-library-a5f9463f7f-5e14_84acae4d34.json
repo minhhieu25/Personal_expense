@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-a5f9463f7f-5e14_84acae4d34",
+  "featureId": "feat_library_a5f9463f7f",
+  "title": "Profile views allow anonymous access and crash on edit",
+  "category": "security",
+  "severity": "medium",
+  "confidence": "high",
+  "triage": "confirmed-bug",
+  "evidence": [
+    {
+      "path": "Users/views.py",
+      "startLine": 67,
+      "endLine": 80,
+      "symbol": "CustomUserView/CustomUserEditView",
+      "quote": null
+    }
+  ],
+  "reasoning": "CustomUserView and CustomUserEditView read and mutate request.user without LoginRequiredMixin or an explicit authentication check. An anonymous GET to the edit view builds CustomUserForm(instance=request.user), where request.user is AnonymousUser rather than CustomUser, which can raise when the ModelForm tries to read model fields. The POST path has the same issue and reaches a profile update form without enforcing authentication. The password-change view in the same file does use LoginRequiredMixin, showing protected account pages are expected to require login.",
+  "reproduction": "Request /customuser/edit/ while logged out. The view enters CustomUserEditView.get and constructs CustomUserForm(instance=request.user) with AnonymousUser.",
+  "recommendation": "Make CustomUserView and CustomUserEditView inherit LoginRequiredMixin before View, or otherwise redirect unauthenticated users before constructing forms or querying profile data.",
+  "whyTestsDoNotAlreadyCoverThis": "Users/tests.py contains only the default stub and no anonymous-access tests for profile routes.",
+  "suggestedRegressionTest": "Add tests asserting logged-out requests to users:customuser and users:edit_user redirect to the login page, and logged-in users can view and update only their own profile.",
+  "minimumFixScope": "Update CustomUserView and CustomUserEditView inheritance or dispatch handling, plus route-level tests.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-a5f9463f7f_5e1435e090",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260602T061120-63cf78",
+  "createdAt": "2026-06-02T06:12:13.593Z",
+  "updatedAt": "2026-06-02T06:12:13.593Z"
+}

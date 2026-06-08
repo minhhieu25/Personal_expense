@@ -1,12 +1,13 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="vi" data-theme="dark">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
-        <title>{% block title %} Dashboard - CryptoVault {% endblock %}</title>
+        <title>{% block title %} Quản lý Chi tiêu {% endblock %}</title>
 
+        <link rel="icon" type="image/png" href="/media/avatars/logo.png?v=1">
         <script>
             // Load theme immediately to prevent flash
             (function() {
@@ -16,6 +17,7 @@
         </script>
 
         {% block cssblock %}
+            <link rel="stylesheet" href="{% static 'homepage/css/style.css' %}">
         {% endblock %}
     </head>
 
@@ -42,6 +44,14 @@
 
                 {% include "footer.html" %}
             </main>
+
+            <!-- Floating Action Button (FAB) -->
+            <a href="{% url 'finances:transaction' %}" class="fab-btn" aria-label="Thêm Giao Dịch">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </a>
         </div>
         
         {% block jsblock %}

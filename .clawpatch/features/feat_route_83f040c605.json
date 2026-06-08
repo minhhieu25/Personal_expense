@@ -32,11 +32,21 @@
     "user-input",
     "serialization"
   ],
-  "status": "pending",
+  "status": "reviewed",
   "lock": null,
   "findingIds": [],
   "patchAttemptIds": [],
-  "analysisHistory": [],
+  "analysisHistory": [
+    {
+      "runId": "20260602T091013-d31d29",
+      "kind": "review",
+      "summary": "0 finding(s); prompt=5335 bytes; approxTokens=1330; includedFiles=1; omittedFiles=0",
+      "provider": "codex",
+      "model": null,
+      "reasoningEffort": null,
+      "createdAt": "2026-06-02T09:10:37.576Z"
+    }
+  ],
   "createdAt": "2026-05-24T15:06:14.180Z",
-  "updatedAt": "2026-05-24T15:06:14.180Z"
+  "updatedAt": "2026-06-02T09:10:37.576Z"
 }

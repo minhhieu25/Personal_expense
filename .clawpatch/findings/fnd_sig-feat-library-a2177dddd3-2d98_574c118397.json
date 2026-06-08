@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-a2177dddd3-2d98_574c118397",
+  "featureId": "feat_library_a2177dddd3",
+  "title": "Wallet update returns serialized data instead of validation errors",
+  "category": "api-contract",
+  "severity": "low",
+  "confidence": "high",
+  "triage": "contract-mismatch",
+  "evidence": [
+    {
+      "path": "API/views.py",
+      "startLine": 69,
+      "endLine": 75,
+      "symbol": "WalletDetailAPIView.put",
+      "quote": null
+    }
+  ],
+  "reasoning": "The wallet update endpoint checks `is_valid()` but returns `my_data.data` on failure instead of `my_data.errors`. Clients receive a 400 response without the validation error details that the other create/update endpoints provide, making invalid requests harder to diagnose and inconsistent with the API contract used elsewhere in this file.",
+  "reproduction": "Send an invalid PUT request to a wallet detail endpoint. The response status is 400, but the body is serializer data rather than validation errors.",
+  "recommendation": "Change the invalid branch to return `Response(my_data.errors, status=status.HTTP_400_BAD_REQUEST)`.",
+  "whyTestsDoNotAlreadyCoverThis": "API/tests.py contains only the default placeholder and no wallet update validation test.",
+  "suggestedRegressionTest": "Add a test that sends an invalid wallet PUT payload and asserts status 400 with the expected serializer error fields in the response body.",
+  "minimumFixScope": "Update `WalletDetailAPIView.put` invalid serializer branch only.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-a2177dddd3_2d985a7a06",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260602T061120-63cf78",
+  "createdAt": "2026-06-02T06:12:08.189Z",
+  "updatedAt": "2026-06-02T06:12:08.189Z"
+}

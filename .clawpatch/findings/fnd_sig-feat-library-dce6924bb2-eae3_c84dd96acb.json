@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-library-dce6924bb2-eae3_c84dd96acb",
+  "featureId": "feat_library_dce6924bb2",
+  "title": "Django configuration ships with debug mode and hard-coded production-sensitive secrets",
+  "category": "security",
+  "severity": "high",
+  "confidence": "high",
+  "triage": "confirmed-bug",
+  "evidence": [
+    {
+      "path": "MySite/settings.py",
+      "startLine": 23,
+      "endLine": 29,
+      "symbol": null,
+      "quote": null
+    },
+    {
+      "path": "MySite/settings.py",
+      "startLine": 80,
+      "endLine": 88,
+      "symbol": null,
+      "quote": null
+    }
+  ],
+  "reasoning": "The settings module contains a literal Django SECRET_KEY, DEBUG is always True, ALLOWED_HOSTS is empty, and PostgreSQL credentials are embedded directly in source. If this settings module is used outside a local-only environment, debug error pages can expose sensitive internals and the committed application and database secrets become reusable by anyone with repository access. Even for local development, checking these values into source creates a release hazard because ASGI/WSGI unconditionally load this settings module.",
+  "reproduction": null,
+  "recommendation": "Read SECRET_KEY, DEBUG, ALLOWED_HOSTS, and database connection values from environment variables or a separate untracked local settings file. Default DEBUG to False for deployed environments and fail startup when required secrets are missing.",
+  "whyTestsDoNotAlreadyCoverThis": "No tests are included for this feature, and these deployment/security settings are normally validated by configuration checks rather than request-level tests.",
+  "suggestedRegressionTest": "Add a Django system-check or settings test that verifies DEBUG is not enabled when a production environment flag is set and that SECRET_KEY and database password are not equal to the checked-in development defaults.",
+  "minimumFixScope": "Update MySite/settings.py to externalize secrets and environment-specific deployment settings.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-library-dce6924bb2_eae35a8bf5",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260602T061120-63cf78",
+  "createdAt": "2026-06-02T06:11:49.044Z",
+  "updatedAt": "2026-06-02T06:11:49.044Z"
+}

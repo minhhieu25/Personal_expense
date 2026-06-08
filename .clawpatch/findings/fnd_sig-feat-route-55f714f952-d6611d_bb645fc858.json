@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "findingId": "fnd_sig-feat-route-55f714f952-d6611d_bb645fc858",
+  "featureId": "feat_route_55f714f952",
+  "title": "Delete route has no linked regression coverage",
+  "category": "test-gap",
+  "severity": "low",
+  "confidence": "medium",
+  "triage": "test-gap",
+  "evidence": [
+    {
+      "path": "Finances/urls.py",
+      "startLine": 14,
+      "endLine": 14,
+      "symbol": "CategoryDeleteView.as_view",
+      "quote": null
+    }
+  ],
+  "reasoning": "The feature exposes a destructive, user-input-driven delete route with an integer pk, but the reviewed feature metadata includes no tests. A future route rename, namespace change, or incorrect view binding could break category deletion without being caught at the URL layer.",
+  "reproduction": null,
+  "recommendation": "Add a URL resolving test for the named route and, ideally, a request-level delete test that verifies the route dispatches to the intended view and enforces the expected delete behavior and access rules.",
+  "whyTestsDoNotAlreadyCoverThis": "No linked tests were provided for this feature, so there is no first-class evidence that this route mapping is currently covered.",
+  "suggestedRegressionTest": "Add a Django test using reverse('finances:category_delete', kwargs={'pk': sample_category.pk}) and resolve() to assert it maps to CategoryDeleteView; include a client request test for the expected authenticated delete flow if the view contract supports it.",
+  "minimumFixScope": "Add focused tests for the category delete URL and its expected dispatch behavior.",
+  "status": "open",
+  "history": [],
+  "signature": "sig_feat-route-55f714f952_d6611dd803",
+  "linkedPatchAttemptIds": [],
+  "createdByRunId": "20260602T064711-e0db81",
+  "createdAt": "2026-06-02T06:47:29.125Z",
+  "updatedAt": "2026-06-02T06:47:29.125Z"
+}

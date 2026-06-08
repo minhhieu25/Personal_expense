@@ -19,11 +19,18 @@
     <!-- Login Form -->
     <form class="auth-form active" id="loginForm" method="post" action="{% url 'users:login' %}">
         {% csrf_token %}
+
+        {% if message %}
+            <div style="background:#d1fae5; color:#065f46; padding:12px; border-radius:8px; margin-bottom:16px; text-align:center;">
+                ✅ {{ message }}
+            </div>
+        {% endif %}
+
         <input type="hidden" name="form_type" value="login">
         
         <div class="form-group">
-            <label>Tên đăng nhập</label>
-            <input type="text" name="username" placeholder="Nhập tên đăng nhập" required>
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Nhập email" required>
         </div>
 
         <div class="form-group">
@@ -36,6 +43,14 @@
         <div style="text-align: center; font-size: 14px; color: var(--text-muted); margin-top: 10px;">
             Chưa có tài khoản? <a href="#" id="switchToRegister" style="color: var(--accent-copper); text-decoration: none; font-weight: 600;">Đăng ký miễn phí</a>
         </div>
+
+        {% if login_form.non_field_errors %}
+            <div class="form-messages" style="margin-top: 15px;">
+                {% for error in login_form.non_field_errors %}
+                    <div style="margin-bottom: 4px;">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
     </form>
 
     <!-- Register Form -->
@@ -65,8 +80,31 @@
 
         <button type="submit" class="btn-submit">Đăng Ký</button>
 
+        {% if register_form.errors %}
+            <div class="form-messages" style="margin-top: 15px;">
+                {% for field, errors in register_form.errors.items %}
+                    {% for error in errors %}
+                        <div style="margin-bottom: 4px;">{{ error }}</div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
         <div style="text-align: center; font-size: 14px; color: var(--text-muted); margin-top: 10px;">
             Đã có tài khoản? <a href="#" id="switchToLogin" style="color: var(--accent-copper); text-decoration: none; font-weight: 600;">Đăng nhập ngay</a>
         </div>
     </form>
+{% endblock %}
+{% block jsblock %}
+<script>
+    window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            const activeTab = "{{ active_tab|default:'login' }}";
+            if (activeTab === 'register') {
+                const regBtn = document.querySelector('[data-form="register"]');
+                if (regBtn) regBtn.click();
+            }
+        }, 50);
+    });
+</script>
 {% endblock %}

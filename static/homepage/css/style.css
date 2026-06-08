@@ -21,14 +21,15 @@ Phiên bản: 1.0
 ======================================== */
 :root,
 [data-theme="dark"] {
+    color-scheme: dark;
     --bg-primary: #1c1c1e;
     --bg-secondary: #232325;
     --bg-card: #2c2c2e;
     --bg-card-hover: #343436;
-    --accent-copper: #b87333;
-    --accent-copper-light: #c9845a;
-    --accent-gradient: linear-gradient(135deg, #b87333 0%, #d4945a 50%, #c9845a 100%);
-    --accent-gradient-hover: linear-gradient(135deg, #c9845a 0%, #daa57a 50%, #d4945a 100%);
+    --accent-primary: #10b981;
+    --accent-light: #34d399;
+    --accent-gradient: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+    --accent-gradient-hover: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
     --text-primary: #f5f0e8;
     --text-secondary: #a8a8a8;
     --text-muted: #6e6e6e;
@@ -44,14 +45,15 @@ Phiên bản: 1.0
    CSS Variables - Light Theme
 ======================================== */
 [data-theme="light"] {
+    color-scheme: light;
     --bg-primary: #f5f5f7;
     --bg-secondary: #ffffff;
     --bg-card: #ffffff;
     --bg-card-hover: #f0f0f2;
-    --accent-copper: #d4945a;
-    --accent-copper-light: #e8b88a;
-    --accent-gradient: linear-gradient(135deg, #d4945a 0%, #e8b88a 50%, #f0c89a 100%);
-    --accent-gradient-hover: linear-gradient(135deg, #e8b88a 0%, #f0c89a 50%, #f5d4a8 100%);
+    --accent-primary: #10b981;
+    --accent-light: #34d399;
+    --accent-gradient: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
+    --accent-gradient-hover: linear-gradient(135deg, #34d399 0%, #6ee7b7 50%, #a7f3d0 100%);
     --text-primary: #1c1c1e;
     --text-secondary: #6e6e6e;
     --text-muted: #9a9a9a;
@@ -98,7 +100,7 @@ body {
     height: 46px;
     background-color: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 16px;
     cursor: pointer;
     align-items: center;
     justify-content: center;
@@ -187,17 +189,17 @@ body {
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, var(--accent-copper), var(--accent-copper-light));
-    border-radius: 10px;
+    background: linear-gradient(180deg, var(--accent-primary), var(--accent-light));
+    border-radius: 16px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, var(--accent-copper-light), var(--accent-copper));
+    background: linear-gradient(180deg, var(--accent-light), var(--accent-primary));
 }
 
 .sidebar {
     scrollbar-width: thin;
-    scrollbar-color: var(--accent-copper) transparent;
+    scrollbar-color: var(--accent-primary) transparent;
 }
 
 /* ========================================
@@ -214,14 +216,14 @@ body {
     width: 42px;
     height: 42px;
     background: var(--accent-gradient);
-    border-radius: 10px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 20px;
     color: #1c1c1e;
-    box-shadow: 0 4px 12px rgba(184, 115, 51, 0.25);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
 }
 
 .logo-text {
@@ -251,7 +253,7 @@ body {
     align-items: center;
     gap: 14px;
     padding: 14px 16px;
-    border-radius: 10px;
+    border-radius: 16px;
     color: var(--text-secondary);
     text-decoration: none;
     margin-bottom: 6px;
@@ -267,7 +269,7 @@ body {
     background: var(--accent-gradient);
     color: #1c1c1e;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(184, 115, 51, 0.3);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .nav-item.active:hover {
@@ -301,7 +303,7 @@ body {
     width: 100%;
     cursor: pointer;
     padding: 14px 16px;
-    border-radius: 10px;
+    border-radius: 16px;
     color: var(--text-secondary);
     text-decoration: none;
     margin-bottom: 6px;
@@ -346,7 +348,7 @@ body {
     align-items: center;
     gap: 14px;
     padding: 12px 16px 12px 40px;
-    border-radius: 8px;
+    border-radius: 12px;
     color: var(--text-secondary);
     text-decoration: none;
     margin-bottom: 4px;
@@ -395,7 +397,7 @@ body {
     width: 52px;
     height: 28px;
     background-color: var(--border);
-    border-radius: 14px;
+    border-radius: 20px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
@@ -426,7 +428,7 @@ body {
     align-items: center;
     gap: 14px;
     padding: 14px 16px;
-    border-radius: 10px;
+    border-radius: 16px;
     color: var(--loss);
     text-decoration: none;
     width: 100%;
@@ -465,13 +467,13 @@ body {
 }
 
 .main-content::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, var(--accent-copper), var(--accent-copper-light));
-    border-radius: 10px;
+    background: linear-gradient(180deg, var(--accent-primary), var(--accent-light));
+    border-radius: 16px;
 }
 
 .main-content {
     scrollbar-width: thin;
-    scrollbar-color: var(--accent-copper) var(--bg-primary);
+    scrollbar-color: var(--accent-primary) var(--bg-primary);
 }
 
 /* ========================================
@@ -497,7 +499,7 @@ body {
 ======================================== */
 .card {
     background-color: var(--bg-card);
-    border-radius: 14px;
+    border-radius: 20px;
     padding: 28px;
     border: 1px solid var(--border);
     transition: all 0.3s ease;
@@ -526,7 +528,7 @@ body {
 ======================================== */
 .btn {
     padding: 14px 28px;
-    border-radius: 10px;
+    border-radius: 16px;
     font-size: 16px;
     font-weight: 600;
     font-family: inherit;
@@ -561,42 +563,7 @@ body {
     background-color: rgba(194, 120, 120, 0.15);
 }
 
-.edit-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid var(--border);
-    background-color: var(--bg-card);
-    color: var(--text-primary);
-}
 
-.edit-button:hover {
-    background-color: var(--bg-card-hover);
-    border-color: var(--accent-copper);
-}
-
-.delete-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid var(--loss);
-    background-color: transparent;
-    color: var(--loss);
-}
 
 .delete-button:hover {
     background-color: rgba(194, 120, 120, 0.15);
@@ -638,7 +605,7 @@ body {
     padding: 14px 18px;
     background-color: var(--bg-primary);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 16px;
     font-size: 16px;
     font-family: inherit;
     color: var(--text-primary);
@@ -647,7 +614,7 @@ body {
 
 .form-input:focus {
     outline: none;
-    border-color: var(--accent-copper);
+    border-color: var(--accent-primary);
 }
 
 .form-input::placeholder {
@@ -659,7 +626,7 @@ body {
     padding: 14px 18px;
     background-color: var(--bg-primary);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 16px;
     font-size: 16px;
     font-family: inherit;
     color: var(--text-primary);
@@ -672,7 +639,7 @@ body {
 
 .form-select:focus {
     outline: none;
-    border-color: var(--accent-copper);
+    border-color: var(--accent-primary);
 }
 
 /* ========================================
@@ -711,7 +678,7 @@ body {
     width: 52px;
     height: 28px;
     background-color: var(--border);
-    border-radius: 14px;
+    border-radius: 20px;
     cursor: pointer;
     transition: background 0.3s ease;
 }
@@ -823,12 +790,12 @@ body {
 }
 
 .copyright a {
-    color: var(--accent-copper);
+    color: var(--accent-primary);
     text-decoration: none;
 }
 
 .copyright a:hover {
-    color: var(--accent-copper-light);
+    color: var(--accent-light);
 }
 
 /* ========================================
@@ -887,4 +854,128 @@ body {
     .card {
         padding: 20px;
     }
+}
+
+/* ========================================
+   Floating Action Button (FAB)
+======================================== */
+.fab-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: var(--accent-gradient);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1c1c1e;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+    z-index: 999;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fab-btn:hover {
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 12px 28px rgba(16, 185, 129, 0.6);
+}
+
+.fab-btn svg {
+    width: 30px;
+    height: 30px;
+}
+
+@media (max-width: 640px) {
+    .fab-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 54px;
+        height: 54px;
+    }
+}
+
+/* ========================================
+   Kebab Menu (3 dots)
+======================================== */
+.kebab-menu {
+    position: relative;
+    display: inline-block;
+}
+
+.kebab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 6px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.kebab-btn:hover, .kebab-btn:focus {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+}
+
+.kebab-dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px var(--shadow);
+    min-width: 140px;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s;
+    padding: 8px;
+}
+
+.kebab-menu:hover .kebab-dropdown,
+.kebab-menu:focus-within .kebab-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.kebab-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit;
+    border-radius: 8px;
+    margin-bottom: 2px;
+}
+
+.kebab-item:last-child {
+    margin-bottom: 0;
+}
+
+.kebab-item:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+}
+
+.kebab-item.delete {
+    color: var(--loss);
+}
+
+.kebab-item.delete:hover {
+    background: rgba(239, 68, 68, 0.1);
 }

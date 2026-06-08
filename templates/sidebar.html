@@ -2,19 +2,18 @@
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
     <div class="logo">
-        <div class="logo-icon">
+        <div class="logo-icon" style="background: none; box-shadow: none;">
             {% if request.user.avatar %}
-            <img src="{{ request.user.avatar.url }}" style="width: 30px; height: 30px; border-radius: 5px">
+            <img src="{{ request.user.avatar.url }}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;">
             {% else %}
-            <img src="https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"
-                style="width: 30px; height: 30px; border-radius: 5px">
+            <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=10b981&color=fff"
+                style="width: 42px; height: 42px; border-radius: 50%;">
             {% endif %}
         </div>
         <span class="logo-text">{{ request.user.username }}</span>
     </div>
 
     <nav class="nav-section">
-        <div class="nav-label">Menu chính</div>
         <a href="{% url 'finances:transaction' %}" class="nav-item {% if 'transaction' in request.path %}active{% endif %}">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -69,7 +68,6 @@
     </nav>
 
     <nav class="nav-section">
-        <div class="nav-label">Tài khoản</div>
         <a href="{% url 'users:customuser' %}" class="nav-item {% if 'customuser' in request.path %}active{% endif %}">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="3" />
@@ -98,7 +96,7 @@
             </div>
             <div class="theme-switch" id="themeSwitch"></div>
         </div>
-        <button class="logout-btn" onclick="window.location.href='{% url 'users:logout' %}'">
+        <button class="logout-btn" onclick="if(confirm('Bạn có chắc chắn muốn đăng xuất?')) window.location.href='{% url 'users:logout' %}'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
                 <polyline points="16 17 21 12 16 7" />

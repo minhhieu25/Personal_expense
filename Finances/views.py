@@ -10,10 +10,14 @@ import calendar
 
 import json
 from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 
 
 # danh mục list
+@method_decorator(never_cache, name='dispatch')
 class CategoryView(LoginRequiredMixin, View):
+    login_url = 'users:login'
     def get(self, request):
         categories = Category.objects.filter(user=request.user)
         form = CategoryForm()  # Initialize empty form for GET request
@@ -49,7 +53,9 @@ class CategoryView(LoginRequiredMixin, View):
         })
     
 # sửa danh mục
-class CategoryEditView(View): 
+@method_decorator(never_cache, name='dispatch')
+class CategoryEditView(LoginRequiredMixin, View): 
+    login_url = 'users:login'
     def get(self, request, pk):
         category = get_object_or_404(Category, pk=pk, user=request.user)
         form = CategoryForm(instance=category)
@@ -64,7 +70,12 @@ class CategoryEditView(View):
         if form.is_valid():
             form.save()
             return redirect('finances:categories')
-        
+        return render(request, "Finances/category/edit.html", {
+            'form': form,
+            'category': category,
+        })
+
+
 # xóa danh mục
 class CategoryDeleteView(View):
     def post(self, request, pk):
@@ -72,8 +83,11 @@ class CategoryDeleteView(View):
         category.delete()
         return redirect('finances:categories')
 
+
 # list ví
+@method_decorator(never_cache, name='dispatch')
 class WalletView(LoginRequiredMixin, View):
+    login_url = 'users:login'
     def get(self, request):
         wallet = Wallet.objects.filter(user=request.user)
 
@@ -88,7 +102,9 @@ class WalletView(LoginRequiredMixin, View):
         })
 
 # thêm ví 
+@method_decorator(never_cache, name='dispatch')
 class WalletAddView(LoginRequiredMixin, View):
+    login_url = 'users:login'
     def get(self, request):
         form = WalletForm()
         return render(request, "Finances/wallet/add.html", {'form': form})
@@ -106,7 +122,9 @@ class WalletAddView(LoginRequiredMixin, View):
         return render(request, "Finances/wallet/add.html", {'form': form})
     
 # sửa ví
+@method_decorator(never_cache, name='dispatch')
 class WalletEditView(LoginRequiredMixin, View):
+    login_url = 'users:login'
     def get(self, request, pk):
         wallet = get_object_or_404(Wallet, pk=pk, user=request.user)
         form = WalletForm(instance=wallet)
@@ -121,6 +139,10 @@ class WalletEditView(LoginRequiredMixin, View):
         if form.is_valid():
             form.save()
             return redirect('finances:wallet')
+        return render(request, "Finances/wallet/edit.html", {
+            'form': form,
+            'wallet': wallet,
+        })
         
 # xóa ví
 class WalletDeleteView(LoginRequiredMixin, View):
@@ -130,7 +152,9 @@ class WalletDeleteView(LoginRequiredMixin, View):
         return redirect('finances:wallet')
     
 # list giao dịch
+@method_decorator(never_cache, name='dispatch')
 class TransactionView(LoginRequiredMixin, View):
+    login_url = 'users:login'
     def get(self, request):
         form = TransactionForm()
         form.fields['category'].queryset = Category.objects.filter(user=request.user)
@@ -166,7 +190,9 @@ class TransactionView(LoginRequiredMixin, View):
         return render(request, "Finances/transaction/list.html", {'form': form})
 
 # sửa giao dịch
-class TransactionEditView(View):
+@method_decorator(never_cache, name='dispatch')
+class TransactionEditView(LoginRequiredMixin, View):
+    login_url = 'users:login'
     def get(self, request, pk):
         transaction = get_object_or_404(Transaction, pk=pk, user=request.user)
         form = TransactionForm(instance=transaction)
@@ -185,6 +211,10 @@ class TransactionEditView(View):
         if form.is_valid():
             form.save()
             return redirect("finances:transaction")
+        return render(request, "Finances/transaction/edit.html", {
+            'form': form,
+            'transaction': transaction,
+        })
         
 # xóa giao dịch
 class TransactionDeleteView(View):
@@ -194,7 +224,9 @@ class TransactionDeleteView(View):
         return redirect("finances:transaction")
 
 # list ngân sách
+@method_decorator(never_cache, name='dispatch')
 class BudgetView(LoginRequiredMixin, View):
+    login_url = 'users:login'
     def get(self, request):
         budget = Budget.objects.filter(user=request.user)
         repeat_filter = request.GET.get('repeat', 'all')
@@ -211,7 +243,9 @@ class BudgetView(LoginRequiredMixin, View):
         })
 
 # thêm ngân sách
+@method_decorator(never_cache, name='dispatch')
 class BudgetAddView(LoginRequiredMixin, View): 
+    login_url = 'users:login'
     def get(self, request):
         form = BudgetForm()
         form.fields['wallet'].queryset = Wallet.objects.filter(user=request.user)
@@ -230,7 +264,9 @@ class BudgetAddView(LoginRequiredMixin, View):
         return render(request, "Finances/budget/budget_add.html", {'form': form })
 
 # sửa ngân sách 
-class BudgetEditView(View):
+@method_decorator(never_cache, name='dispatch')
+class BudgetEditView(LoginRequiredMixin, View):
+    login_url = 'users:login'
     def get(self, request, pk):
         budget = get_object_or_404(Budget, pk=pk, user=request.user)
         form = BudgetForm(instance=budget)
@@ -249,6 +285,10 @@ class BudgetEditView(View):
         if form.is_valid():
             form.save()
             return redirect("finances:budget")
+        return render(request, "Finances/budget/edit.html", {
+            'form': form,
+            'budget': budget,
+        })
         
 # xóa ngân sách
 class BudgetDeleteView(View):
@@ -258,7 +298,9 @@ class BudgetDeleteView(View):
         return redirect("finances:budget")
 
 # lịch
+@method_decorator(never_cache, name='dispatch')
 class CalenderView(LoginRequiredMixin, View):
+    login_url = 'users:login'
     def get(self, request):
         # lấy filter từ url
         view_type = request.GET.get('view', 'month')
@@ -346,16 +388,11 @@ class CalenderView(LoginRequiredMixin, View):
                 'selected_day': selected_day,
                 'day_transactions': day_transactions,
         })
-
-
-# # setting
-# class SettingView(View):
-#     def get(self, request):
-#         return render(request, "Finances/settings.html")
-    
     
 # bao cao
+@method_decorator(never_cache, name='dispatch')
 class ReportView(LoginRequiredMixin, View):
+    login_url = 'users:login'
     def get(self, request):
         # lấy tháng/năm từ url, mặc định tháng hiện tại
         month = int(request.GET.get('month', timezone.now().month))

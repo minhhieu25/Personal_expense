@@ -2,9 +2,11 @@ from django.forms import ModelForm
 from .models import CustomUser
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 class LoginForm(forms.Form):
-    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'username'}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'email'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'password'}))
     remember_me = forms.BooleanField(required=False) # False: khong bắt buộc
 
@@ -44,6 +46,15 @@ class PasswordChangeForm(forms.Form):
         new_password = cleaned_data.get('new_password')
         new_password2 = cleaned_data.get('new_password2')
 
+        # kiểm tra 2 mật khẩu có khớp không
         if new_password and new_password2 and new_password != new_password2:
-            raise forms.ValidationError("Mật khẩu mới không khớp!")
+            self.add_error("new_password2", "Mật khẩu mới không khớp!")
+        
+        # kiểm tra độ mạnh của mật khẩu
+        if new_password:
+            try:
+                validate_password(new_password)
+            except ValidationError as e:
+                self.add_error("new_password", e)
+                
         return cleaned_data
