@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'Users',
     'API',
     'rest_framework',
+    'anymail',
 ]
 
 MIDDLEWARE = [
@@ -148,13 +149,21 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Dùng email 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('DB_EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('DB_EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.environ.get('DB_EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = os.environ.get('DB_EMAIL_HOST_PASSWORD')
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+#  dùng SendGrid
+EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
+ANYMAIL = {
+    "SENDGRID_API_KEY": os.environ.get("SENDGRID_API_KEY"),
+}
+DEFAULT_FROM_EMAIL = "vominhhieu220825@gmail.com"
+
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
