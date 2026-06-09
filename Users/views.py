@@ -121,7 +121,7 @@ class PasswordChangeView(LoginRequiredMixin, View):
     login_url = 'users:login'
     def get(self, request):
         form = PasswordChangeForm()
-        return render(request, "Users/password_change.html", {'form': form})
+        return render(request, "users/password_change.html", {'form': form})
 
     def post(self, request):
         form = PasswordChangeForm(request.POST)
@@ -130,7 +130,7 @@ class PasswordChangeView(LoginRequiredMixin, View):
             # Kiểm tra mật khẩu hiện tại
             if not user.check_password(form.cleaned_data['old_password']):
                 form.add_error('old_password', 'Mật khẩu hiện tại không đúng!')
-                return render(request, "Users/password_change.html", {'form': form})
+                return render(request, "users/password_change.html", {'form': form})
             # Đổi mật khẩu
             user.set_password(form.cleaned_data['new_password'])
             user.save()
